@@ -32,7 +32,8 @@ This project shows the power of Next.js and serves as a practical demonstration 
 - [💡 **Notes**](#-notes)
 - [🧪 **Testing**](#-testing)
   - [**Running Tests**](#running-tests)
-- [🐳 Containerization](#-containerization)
+- [🚀 **Live Deployment**](#-live-deployment)
+- [🐳 **Containerization**](#-containerization)
 - [🔧 **Contributing**](#-contributing)
 - [📝 **License**](#-license)
 - [📧 **Contact**](#-contact)
@@ -279,6 +280,10 @@ yarn test
 ```
 
 The tests will run and display the results in the terminal.
+
+## 🚀 **Live Deployment**
+
+The application is deployed live on **Vercel**. You can access it at [https://to-do-app-next-js-fullstack.vercel.app/](https://to-do-app-next-js-fullstack.vercel.app/).
 
 ## 🐳 **Containerization**
 
