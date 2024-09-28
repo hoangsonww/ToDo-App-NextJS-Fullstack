@@ -7,6 +7,19 @@ This project shows the power of Next.js and serves as a practical demonstration 
 ## Table of Contents
 
 - [🌟 **Features**](#-features)
+- [🖼️ **UI Preview**](#-ui-preview)
+  - [**Landing Page**](#landing-page)
+    - [**Light Mode**](#light-mode)
+    - [**Dark Mode**](#dark-mode)
+  - [**Login Page**](#login-page)
+    - [**Light Mode**](#light-mode-1)
+    - [**Dark Mode**](#dark-mode-1)
+  - [**Register Page**](#register-page)
+    - [**Light Mode**](#light-mode-2)
+    - [**Dark Mode**](#dark-mode-2)
+  - [**Homepage (To-Do List)**](#homepage-to-do-list)
+    - [**Light Mode**](#light-mode-3)
+    - [**Dark Mode**](#dark-mode-3)
 - [📂 **File Structure**](#-file-structure)
 - [📋 **API Endpoints**](#-api-endpoints)
   - [**1. Prerequisites**](#1-prerequisites)
@@ -16,15 +29,10 @@ This project shows the power of Next.js and serves as a practical demonstration 
   - [**5. Run the Development Server**](#5-run-the-development-server)
   - [**6. Build for Production**](#6-build-for-production)
 - [🌐 **Using the App**](#-using-the-app)
-- [🖼️ **UI Preview**](#-ui-preview)
-  - [**Landing Page**](#landing-page)
-  - [**Login Page**](#login-page)
-  - [**Register Page**](#register-page)
-  - [**Homepage (To-Do List)**](#homepage-to-do-list)
-  - [**Dark Mode**](#dark-mode)
 - [💡 **Notes**](#-notes)
 - [🧪 **Testing**](#-testing)
   - [**Running Tests**](#running-tests)
+- [🐳 Containerization](#-containerization)
 - [🔧 **Contributing**](#-contributing)
 - [📝 **License**](#-license)
 - [📧 **Contact**](#-contact)
@@ -43,6 +51,64 @@ This project shows the power of Next.js and serves as a practical demonstration 
 - Basic testing for API endpoints and utility functions
 - Easy-to-understand file structure and codebase
 - Customizable with additional features and improvements
+
+## 🖼️ **UI Preview**
+
+### **Landing Page**
+
+#### **Light Mode**
+
+<p align="center">
+  <img src="images/landing-bright.png" alt="Landing Page" width="100%" style="border-radius: 10px"/>
+</p>
+
+#### **Dark Mode**
+
+<p align="center">
+  <img src="images/landing-dark.png" alt="Landing Page in Dark Mode" width="100%" style="border-radius: 10px"/>
+</p>
+
+### **Login Page**
+
+#### **Light Mode**
+
+<p align="center">
+  <img src="images/login-bright.png" alt="Login Page" width="100%" style="border-radius: 10px"/>
+</p>
+
+#### **Dark Mode**
+
+<p align="center">
+  <img src="images/login-dark.png" alt="Login Page in Dark Mode" width="100%" style="border-radius: 10px"/>
+</p>
+
+### **Register Page**
+
+#### **Light Mode**
+
+<p align="center">
+  <img src="images/register-bright.png" alt="Register Page" width="100%" style="border-radius: 10px"/>
+</p>
+
+#### **Dark Mode**
+
+<p align="center">
+  <img src="images/register-dark.png" alt="Register Page in Dark Mode" width="100%" style="border-radius: 10px"/>
+</p>
+
+### **Homepage (To-Do List)**
+
+#### **Light Mode**
+
+<p align="center">
+  <img src="images/home-bright.png" alt="Homepage" width="100%" style="border-radius: 10px"/>
+</p>
+
+#### **Dark Mode**
+
+<p align="center">
+  <img src="images/home-dark.png" alt="Homepage in Dark Mode" width="100%" style="border-radius: 10px"/>
+</p>
 
 ## 📂 **File Structure**
 
@@ -191,66 +257,6 @@ The production build will be served at `http://localhost:3000`.
   - Login: Access your account through the `/auth/login` page.
 3. **Manage To-Dos**: Access the main to-do list page (`/`) where you can add, edit, and delete to-dos, as well as toggle dark mode.
 
-## 🖼️ **UI Preview**
-
-### **Landing Page**
-
-#### **Light Mode**
-
-<p align="center">
-  <img src="images/landing-bright.png" alt="Landing Page" width="100%" style="border-radius: 10px"/>
-</p>
-
-#### **Dark Mode**
-
-<p align="center">
-  <img src="images/landing-dark.png" alt="Landing Page in Dark Mode" width="100%" style="border-radius: 10px"/>
-</p>
-
-### **Login Page**
-
-#### **Light Mode**
-
-<p align="center">
-  <img src="images/login-bright.png" alt="Login Page" width="100%" style="border-radius: 10px"/>
-</p>
-
-#### **Dark Mode**
-
-<p align="center">
-  <img src="images/login-dark.png" alt="Login Page in Dark Mode" width="100%" style="border-radius: 10px"/>
-</p>
-
-### **Register Page**
-
-#### **Light Mode**
-
-<p align="center">
-  <img src="images/register-bright.png" alt="Register Page" width="100%" style="border-radius: 10px"/>
-</p>
-
-#### **Dark Mode**
-
-<p align="center">
-  <img src="images/register-dark.png" alt="Register Page in Dark Mode" width="100%" style="border-radius: 10px"/>
-</p>
-
-### **Homepage (To-Do List)**
-
-#### **Light Mode**
-
-<p align="center">
-  <img src="images/home-bright.png" alt="Homepage" width="100%" style="border-radius: 10px"/>
-</p>
-
-#### **Dark Mode**
-
-<p align="center">
-  <img src="images/home-dark.png" alt="Homepage in Dark Mode" width="100%" style="border-radius: 10px"/>
-</p>
-
----
-
 ## 💡 **Notes**
 
 - This application uses local storage to manage user data and to-do items. For a more robust application, consider integrating a real database (e.g., MongoDB, PostgreSQL).
@@ -273,6 +279,16 @@ yarn test
 ```
 
 The tests will run and display the results in the terminal.
+
+## 🐳 **Containerization**
+
+This project includes a `Dockerfile` for containerization. To build the Docker image, run:
+
+```bash
+docker compose up --build
+```
+
+This command will build the Docker image and start the container. The application will be accessible at `http://localhost:3000`.
 
 ## 🔧 **Contributing**
 
