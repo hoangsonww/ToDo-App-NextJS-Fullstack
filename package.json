@@ -9,16 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "better-sqlite3": "^11.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "next": "14.2.13",
     "react": "^18",
-    "react-dom": "^18",
-    "next": "14.2.13"
+    "react-dom": "^18"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "14.2.13"
+    "eslint-config-next": "14.2.13",
+    "typescript": "^5"
   }
 }
