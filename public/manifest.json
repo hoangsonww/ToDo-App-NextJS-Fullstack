@@ -1,0 +1,22 @@
+{
+  "short_name": "ToDo App",
+  "name": "ToDo App - Fullstack Next.js",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#006400",
+  "description": "A fullstack ToDo app built with Next.js"
+}

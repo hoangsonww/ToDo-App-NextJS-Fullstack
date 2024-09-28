@@ -30,11 +30,19 @@ This project shows the power of Next.js and serves as a practical demonstration 
 - [📧 **Contact**](#-contact)
 
 ## 🌟 **Features**
+
 - Full authentication system (Register and Login)
 - Dark and Light mode
+- User-specific to-do lists with different categories
+- CRUD operations for to-do items
+- Responsive design
 - Add, edit, delete, and complete tasks
 - Persistent storage using SQLite and in-memory storage
 - A clean, modern, and responsive UI
+- PWA support with offline capabilities
+- Basic testing for API endpoints and utility functions
+- Easy-to-understand file structure and codebase
+- Customizable with additional features and improvements
 
 ## 📂 **File Structure**
 
@@ -186,28 +194,59 @@ The production build will be served at `http://localhost:3000`.
 ## 🖼️ **UI Preview**
 
 ### **Landing Page**
+
+#### **Light Mode**
+
 <p align="center">
-  <img src="public/images/landing-page.png" alt="Landing Page" width="600"/>
+  <img src="images/landing-bright.png" alt="Landing Page" width="100%" style="border-radius: 10px"/>
+</p>
+
+#### **Dark Mode**
+
+<p align="center">
+  <img src="images/landing-dark.png" alt="Landing Page in Dark Mode" width="100%" style="border-radius: 10px"/>
 </p>
 
 ### **Login Page**
+
+#### **Light Mode**
+
 <p align="center">
-  <img src="public/images/login-page.png" alt="Login Page" width="600"/>
+  <img src="images/login-bright.png" alt="Login Page" width="100%" style="border-radius: 10px"/>
+</p>
+
+#### **Dark Mode**
+
+<p align="center">
+  <img src="images/login-dark.png" alt="Login Page in Dark Mode" width="100%" style="border-radius: 10px"/>
 </p>
 
 ### **Register Page**
+
+#### **Light Mode**
+
 <p align="center">
-  <img src="public/images/register-page.png" alt="Register Page" width="600"/>
+  <img src="images/register-bright.png" alt="Register Page" width="100%" style="border-radius: 10px"/>
+</p>
+
+#### **Dark Mode**
+
+<p align="center">
+  <img src="images/register-dark.png" alt="Register Page in Dark Mode" width="100%" style="border-radius: 10px"/>
 </p>
 
 ### **Homepage (To-Do List)**
+
+#### **Light Mode**
+
 <p align="center">
-  <img src="public/images/homepage.png" alt="Homepage with To-Do List" width="600"/>
+  <img src="images/home-bright.png" alt="Homepage" width="100%" style="border-radius: 10px"/>
 </p>
 
-### **Dark Mode**
+#### **Dark Mode**
+
 <p align="center">
-  <img src="public/images/dark-mode.png" alt="App in Dark Mode" width="600"/>
+  <img src="images/home-dark.png" alt="Homepage in Dark Mode" width="100%" style="border-radius: 10px"/>
 </p>
 
 ---
