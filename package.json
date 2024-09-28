@@ -1,7 +1,10 @@
 {
   "name": "todo-app-fullstack-nextjs",
-  "version": "0.1.0",
-  "private": true,
+  "displayName": "Todo App Fullstack Next.js",
+  "author": "Son Nguyen",
+  "license": "MIT",
+  "version": "1.1.0",
+  "private": false,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,14 +12,23 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.1",
+    "@mui/material": "^6.1.1",
+    "@mui/system": "^6.1.1",
     "bcrypt": "^5.1.1",
     "better-sqlite3": "^11.3.0",
     "jsonwebtoken": "^9.0.2",
     "next": "14.2.13",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-transition-group": "^4.4.5"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20",
@@ -24,6 +36,7 @@
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.13",
+    "jest": "^29.7.0",
     "typescript": "^5"
   }
 }
