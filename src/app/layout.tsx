@@ -1,5 +1,6 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react"
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -34,7 +35,8 @@ export default function RootLayout({
       <meta name="theme-color" content="#006400" />
     </head>
     <body className={`${geistSans.variable} ${geistMono.variable}`}>
-    {children}
+      <Analytics />
+      {children}
     </body>
     </html>
   );
