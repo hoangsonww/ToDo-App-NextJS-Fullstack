@@ -37,6 +37,12 @@ const darkGreenTheme = createTheme({
   },
 });
 
+interface User {
+  id: number;
+  username: string;
+  password: string;
+}
+
 export default function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -45,8 +51,6 @@ export default function Register() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-
-  // Function to check if a link is active
   const isActive = (path: string) => pathname === path;
 
   const handleRegister = () => {
@@ -60,17 +64,17 @@ export default function Register() {
       return;
     }
 
-    // Retrieve existing users from localStorage
-    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    // Retrieve existing users from localStorage and cast them to the User array type
+    const existingUsers: User[] = JSON.parse(localStorage.getItem('users') || '[]');
 
     // Check if user already exists
-    if (existingUsers.some((user: any) => user.username === username)) {
+    if (existingUsers.some((user) => user.username === username)) {
       setError('User already exists');
       return;
     }
 
-    // Register the user
-    const newUser = { id: existingUsers.length + 1, username, password };
+    // Register the user with the User type
+    const newUser: User = { id: existingUsers.length + 1, username, password };
     existingUsers.push(newUser);
     localStorage.setItem('users', JSON.stringify(existingUsers));
 

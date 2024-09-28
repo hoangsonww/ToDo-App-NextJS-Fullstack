@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import {redirect, useRouter} from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import {
   AppBar,
   Toolbar,
@@ -65,22 +65,19 @@ export default function Home() {
   const isActive = (path: string) => pathname === path;
 
   useEffect(() => {
-    // Check if the user is logged in by looking for the 'currentUser' in localStorage
-    const currentUser = localStorage.getItem('currentUser');
-
-    if (!currentUser) {
-      // If there's no user logged in, redirect to the landing page
-      router.push('/landing');
-    }
-  }, [router]);
-
-  useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
     if (storedUser) {
       setUser(storedUser);
     } else {
-      alert('You must be logged in to access this page');
       router.push('/auth/login');
+    }
+  }, [router]);
+
+  useEffect(() => {
+    const currentUser = localStorage.getItem('currentUser');
+
+    if (!currentUser || currentUser === 'null') {
+      router.push('/landing');
     }
   }, [router]);
 

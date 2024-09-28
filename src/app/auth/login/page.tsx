@@ -37,6 +37,12 @@ const darkGreenTheme = createTheme({
   },
 });
 
+interface User {
+  id: number;
+  username: string;
+  password: string;
+}
+
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -52,11 +58,9 @@ export default function Login() {
       return;
     }
 
-    // Retrieve existing users from localStorage
-    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    const existingUsers: User[] = JSON.parse(localStorage.getItem('users') || '[]');
 
-    // Find the user
-    const user = existingUsers.find((user: any) => user.username === username && user.password === password);
+    const user = existingUsers.find((user) => user.username === username && user.password === password);
 
     if (!user) {
       setError('Invalid username or password');
