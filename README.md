@@ -185,7 +185,7 @@ Ensure you have the following installed:
 
 ```bash
 git clone https://github.com/hoangsonww/ToDo-App-NextJS-Fullstack.git
-cd todo-app-fullstack-nextjs
+cd ToDo-App-NextJS-Fullstack
 ```
 
 ### **3. Install Dependencies**
