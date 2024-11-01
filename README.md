@@ -1,6 +1,6 @@
 # ToDo-App-Fullstack-NextJS
 
-Welcome to the **ToDo-App-Fullstack-NextJS**, a full-stack and simple to-do application built using **Next.js** with both backend and frontend integrated seamlessly.
+Welcome to the **ToDo-App-Fullstack-NextJS**, a full-stack, lightweight, and simple to-do application built using **Next.js** with both backend and frontend integrated seamlessly.
 
 This project shows the power of Next.js and serves as a practical demonstration of using Next.js as a complete full-stack framework, incorporating authentication, dark mode, and local storage for data persistence.
 
