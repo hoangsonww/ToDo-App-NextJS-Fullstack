@@ -51,6 +51,20 @@ export default function Login() {
   const router = useRouter();
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
+  const [user, setUser] = useState<{ id: number; username: string } | null>(null);
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, [router]);
+
+  const logout = () => {
+    localStorage.removeItem('currentUser');
+    setUser(null);
+    router.push('/auth/login');
+  };
 
   const handleLogin = () => {
     if (!username || !password) {
@@ -99,89 +113,111 @@ export default function Login() {
         {/* Navbar */}
         <AppBar position="sticky" sx={{ backgroundColor: '#006400' }}>
           <Toolbar>
-            {/* App Title that redirects to Home */}
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
               <Link href="/" style={{ color: '#fff', textDecoration: 'none' }}>
                 The NextJS ToDo App
               </Link>
             </Typography>
 
-            {/* Navbar Links with Active State Highlight */}
+            {/* Navbar Links with Active and Hover Underline Effect */}
             <Link href="/" passHref>
               <Button
                 sx={{
                   color: isActive('/') ? '#f5f5f5' : '#ffffff',
                   position: 'relative',
-                  '&::after': isActive('/')
-                    ? {
-                      content: '""',
-                      position: 'absolute',
-                      bottom: '-4px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      height: '3px',
-                      width: '100%', // Full width underline
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: '10px', // Rounded corners on both sides
-                      transition: 'width 0.3s',
-                    }
-                    : {},
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    height: '2px',
+                    width: isActive('/') ? '100%' : '0',
+                    backgroundColor: '#ffffff',
+                    borderRadius: isActive('/') ? '10px' : '0',  // Rounded border for active link
+                    transition: 'width 0.3s',
+                  },
                   '&:hover::after': {
-                    width: '110%', // Slightly larger on hover
+                    width: '100%',
                   },
                 }}
               >
                 Home
               </Button>
             </Link>
-            <Link href="/auth/login" passHref>
+
+            {/* Conditional Login/Logout Button */}
+            {user ? (
               <Button
+                onClick={logout}
                 sx={{
-                  color: isActive('/auth/login') ? '#f5f5f5' : '#ffffff',
+                  color: 'red',
+                  fontWeight: 'bold',
                   position: 'relative',
-                  '&::after': isActive('/auth/login')
-                    ? {
-                      content: '""',
-                      position: 'absolute',
-                      bottom: '-4px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      height: '3px',
-                      width: '100%', // Full width underline
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: '10px', // Rounded corners on both sides
-                      transition: 'width 0.3s',
-                    }
-                    : {},
+                  '&:hover': {
+                    color: '#ff4d4d',
+                  },
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    height: '2px',
+                    width: '0',
+                    backgroundColor: '#fff',
+                    transition: 'width 0.3s',
+                  },
                   '&:hover::after': {
-                    width: '110%', // Slightly larger on hover
+                    width: '100%',
                   },
                 }}
               >
-                Login
+                Logout
               </Button>
-            </Link>
+            ) : (
+              <Link href="/auth/login" passHref>
+                <Button
+                  sx={{
+                    color: isActive('/auth/login') ? '#f5f5f5' : '#ffffff',
+                    position: 'relative',
+                    '&::after': {
+                      content: '""',
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      height: '2px',
+                      width: isActive('/auth/login') ? '100%' : '0',
+                      backgroundColor: '#ffffff',
+                      borderRadius: isActive('/auth/login') ? '10px' : '0',
+                      transition: 'width 0.3s',
+                    },
+                    '&:hover::after': {
+                      width: '100%',
+                    },
+                  }}
+                >
+                  Login
+                </Button>
+              </Link>
+            )}
+
             <Link href="/auth/register" passHref>
               <Button
                 sx={{
                   color: isActive('/auth/register') ? '#f5f5f5' : '#ffffff',
                   position: 'relative',
-                  '&::after': isActive('/auth/register')
-                    ? {
-                      content: '""',
-                      position: 'absolute',
-                      bottom: '-4px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      height: '3px',
-                      width: '100%', // Full width underline
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: '10px', // Rounded corners on both sides
-                      transition: 'width 0.3s',
-                    }
-                    : {},
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    height: '2px',
+                    width: isActive('/auth/register') ? '100%' : '0',
+                    backgroundColor: '#ffffff',
+                    borderRadius: isActive('/auth/register') ? '10px' : '0',
+                    transition: 'width 0.3s',
+                  },
                   '&:hover::after': {
-                    width: '110%', // Slightly larger on hover
+                    width: '100%',
                   },
                 }}
               >

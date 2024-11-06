@@ -75,7 +75,20 @@ export default function LandingPage() {
                 sx={{
                   color: '#ffffff',
                   textDecoration: 'none',
-                  '&:hover': { borderBottom: '2px solid #ffffff', borderRadius: '10px' },
+                  position: 'relative',
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    height: '2px',
+                    width: '0',
+                    backgroundColor: '#ffffff',
+                    transition: 'width 0.3s',
+                  },
+                  '&:hover::after': {
+                    width: '100%',
+                  },
                 }}
               >
                 Login
@@ -86,7 +99,20 @@ export default function LandingPage() {
                 sx={{
                   color: '#ffffff',
                   textDecoration: 'none',
-                  '&:hover': { borderBottom: '2px solid #ffffff', borderRadius: '10px' },
+                  position: 'relative',
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    height: '2px',
+                    width: '0',
+                    backgroundColor: '#ffffff',
+                    transition: 'width 0.3s',
+                  },
+                  '&:hover::after': {
+                    width: '100%',
+                  },
                 }}
               >
                 Register
