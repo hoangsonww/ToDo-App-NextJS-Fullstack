@@ -1,6 +1,6 @@
-'use client';
-import React, {useEffect, useState} from 'react';
-import {usePathname, useRouter} from 'next/navigation';
+"use client";
+import React, { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   AppBar,
   Toolbar,
@@ -14,26 +14,26 @@ import {
   ThemeProvider,
   createTheme,
   CssBaseline,
-} from '@mui/material';
-import Link from 'next/link';
-import { Brightness4, Brightness7 } from '@mui/icons-material';
-import '../../page.css';
+} from "@mui/material";
+import Link from "next/link";
+import { Brightness4, Brightness7 } from "@mui/icons-material";
+import "../../page.css";
 
 const darkGreenTheme = createTheme({
   palette: {
     primary: {
-      main: '#006400', // Dark green
+      main: "#006400", // Dark green
     },
     secondary: {
-      main: '#ffffff', // White
+      main: "#ffffff", // White
     },
     background: {
-      default: '#f5f5f5',
-      paper: '#ffffff',
+      default: "#f5f5f5",
+      paper: "#ffffff",
     },
   },
   typography: {
-    fontFamily: 'Poppins, sans-serif',
+    fontFamily: "Poppins, sans-serif",
   },
 });
 
@@ -44,18 +44,22 @@ interface User {
 }
 
 export default function Register() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
-  const [user, setUser] = useState<{ id: number; username: string } | null>(null);
+  const [user, setUser] = useState<{ id: number; username: string } | null>(
+    null,
+  );
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    const storedUser = JSON.parse(
+      localStorage.getItem("currentUser") || "null",
+    );
     if (storedUser) {
       setUser(storedUser);
     }
@@ -63,46 +67,50 @@ export default function Register() {
 
   const handleRegister = () => {
     if (!username || !password || !confirmPassword) {
-      setError('All fields are required');
+      setError("All fields are required");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
     // Retrieve existing users from localStorage and cast them to the User array type
-    const existingUsers: User[] = JSON.parse(localStorage.getItem('users') || '[]');
+    const existingUsers: User[] = JSON.parse(
+      localStorage.getItem("users") || "[]",
+    );
 
     // Check if user already exists
     if (existingUsers.some((user) => user.username === username)) {
-      setError('User already exists');
+      setError("User already exists");
       return;
     }
 
     // Register the user with the User type
     const newUser: User = { id: existingUsers.length + 1, username, password };
     existingUsers.push(newUser);
-    localStorage.setItem('users', JSON.stringify(existingUsers));
+    localStorage.setItem("users", JSON.stringify(existingUsers));
 
-    alert('User registered successfully! Please log in.');
-    router.push('/auth/login');
+    alert("User registered successfully! Please log in.");
+    router.push("/auth/login");
   };
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
-    localStorage.setItem('darkMode', JSON.stringify(!isDarkMode));
+    localStorage.setItem("darkMode", JSON.stringify(!isDarkMode));
   };
 
   const logout = () => {
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem("currentUser");
     setUser(null);
-    router.push('/auth/login');
+    router.push("/auth/login");
   };
 
   useEffect(() => {
-    const storedDarkMode = JSON.parse(localStorage.getItem('darkMode') || 'true');
+    const storedDarkMode = JSON.parse(
+      localStorage.getItem("darkMode") || "true",
+    );
     setIsDarkMode(storedDarkMode);
   }, []);
 
@@ -111,18 +119,18 @@ export default function Register() {
       <CssBaseline />
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100vh',
-          backgroundColor: isDarkMode ? '#000000' : '#ffffff', // Background color
-          color: isDarkMode ? '#ffffff' : '#000000', // Text color
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+          backgroundColor: isDarkMode ? "#000000" : "#ffffff", // Background color
+          color: isDarkMode ? "#ffffff" : "#000000", // Text color
         }}
       >
         {/* Navbar */}
-        <AppBar position="sticky" sx={{ backgroundColor: '#006400' }}>
+        <AppBar position="sticky" sx={{ backgroundColor: "#006400" }}>
           <Toolbar>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              <Link href="/" style={{ color: '#fff', textDecoration: 'none' }}>
+              <Link href="/" style={{ color: "#fff", textDecoration: "none" }}>
                 The NextJS ToDo App
               </Link>
             </Typography>
@@ -131,21 +139,21 @@ export default function Register() {
             <Link href="/" passHref>
               <Button
                 sx={{
-                  color: isActive('/') ? '#f5f5f5' : '#ffffff',
-                  position: 'relative',
-                  '&::after': {
+                  color: isActive("/") ? "#f5f5f5" : "#ffffff",
+                  position: "relative",
+                  "&::after": {
                     content: '""',
-                    position: 'absolute',
+                    position: "absolute",
                     bottom: 0,
                     left: 0,
-                    height: '2px',
-                    width: isActive('/') ? '100%' : '0',
-                    backgroundColor: '#ffffff',
-                    borderRadius: isActive('/') ? '10px' : '0',  // Rounded border for active link
-                    transition: 'width 0.3s',
+                    height: "2px",
+                    width: isActive("/") ? "100%" : "0",
+                    backgroundColor: "#ffffff",
+                    borderRadius: isActive("/") ? "10px" : "0", // Rounded border for active link
+                    transition: "width 0.3s",
                   },
-                  '&:hover::after': {
-                    width: '100%',
+                  "&:hover::after": {
+                    width: "100%",
                   },
                 }}
               >
@@ -158,24 +166,24 @@ export default function Register() {
               <Button
                 onClick={logout}
                 sx={{
-                  color: 'red',
-                  fontWeight: 'bold',
-                  position: 'relative',
-                  '&:hover': {
-                    color: '#ff4d4d',
+                  color: "red",
+                  fontWeight: "bold",
+                  position: "relative",
+                  "&:hover": {
+                    color: "#ff4d4d",
                   },
-                  '&::after': {
+                  "&::after": {
                     content: '""',
-                    position: 'absolute',
+                    position: "absolute",
                     bottom: 0,
                     left: 0,
-                    height: '2px',
-                    width: '0',
-                    backgroundColor: '#fff',
-                    transition: 'width 0.3s',
+                    height: "2px",
+                    width: "0",
+                    backgroundColor: "#fff",
+                    transition: "width 0.3s",
                   },
-                  '&:hover::after': {
-                    width: '100%',
+                  "&:hover::after": {
+                    width: "100%",
                   },
                 }}
               >
@@ -185,21 +193,21 @@ export default function Register() {
               <Link href="/auth/login" passHref>
                 <Button
                   sx={{
-                    color: isActive('/auth/login') ? '#f5f5f5' : '#ffffff',
-                    position: 'relative',
-                    '&::after': {
+                    color: isActive("/auth/login") ? "#f5f5f5" : "#ffffff",
+                    position: "relative",
+                    "&::after": {
                       content: '""',
-                      position: 'absolute',
+                      position: "absolute",
                       bottom: 0,
                       left: 0,
-                      height: '2px',
-                      width: isActive('/auth/login') ? '100%' : '0',
-                      backgroundColor: '#ffffff',
-                      borderRadius: isActive('/auth/login') ? '10px' : '0',
-                      transition: 'width 0.3s',
+                      height: "2px",
+                      width: isActive("/auth/login") ? "100%" : "0",
+                      backgroundColor: "#ffffff",
+                      borderRadius: isActive("/auth/login") ? "10px" : "0",
+                      transition: "width 0.3s",
                     },
-                    '&:hover::after': {
-                      width: '100%',
+                    "&:hover::after": {
+                      width: "100%",
                     },
                   }}
                 >
@@ -211,21 +219,21 @@ export default function Register() {
             <Link href="/auth/register" passHref>
               <Button
                 sx={{
-                  color: isActive('/auth/register') ? '#f5f5f5' : '#ffffff',
-                  position: 'relative',
-                  '&::after': {
+                  color: isActive("/auth/register") ? "#f5f5f5" : "#ffffff",
+                  position: "relative",
+                  "&::after": {
                     content: '""',
-                    position: 'absolute',
+                    position: "absolute",
                     bottom: 0,
                     left: 0,
-                    height: '2px',
-                    width: isActive('/auth/register') ? '100%' : '0',
-                    backgroundColor: '#ffffff',
-                    borderRadius: isActive('/auth/register') ? '10px' : '0',
-                    transition: 'width 0.3s',
+                    height: "2px",
+                    width: isActive("/auth/register") ? "100%" : "0",
+                    backgroundColor: "#ffffff",
+                    borderRadius: isActive("/auth/register") ? "10px" : "0",
+                    transition: "width 0.3s",
                   },
-                  '&:hover::after': {
-                    width: '100%',
+                  "&:hover::after": {
+                    width: "100%",
                   },
                 }}
               >
@@ -243,28 +251,32 @@ export default function Register() {
         {/* Register Form */}
         <Container
           sx={{
-            minHeight: '80vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            minHeight: "80vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <Paper
             elevation={4}
             sx={{
-              padding: '30px',
+              padding: "30px",
               borderRadius: 2,
               boxShadow: 3,
-              width: '100%',
-              maxWidth: '400px',
-              backgroundColor: isDarkMode ? '#333' : '#fff', // Modal's background color
-              color: isDarkMode ? '#fff' : '#000', // Text color
+              width: "100%",
+              maxWidth: "400px",
+              backgroundColor: isDarkMode ? "#333" : "#fff", // Modal's background color
+              color: isDarkMode ? "#fff" : "#000", // Text color
             }}
           >
             <Typography variant="h4" align="center" gutterBottom>
               Register
             </Typography>
-            {error && <Typography color="error" align="center">{error}</Typography>}
+            {error && (
+              <Typography color="error" align="center">
+                {error}
+              </Typography>
+            )}
             <Box mb={2}>
               <TextField
                 label="Username"
@@ -274,26 +286,26 @@ export default function Register() {
                 onChange={(e) => setUsername(e.target.value)}
                 sx={{
                   marginBottom: 2,
-                  '& .MuiInputBase-input': {
-                    color: isDarkMode ? '#fff' : '#000',
+                  "& .MuiInputBase-input": {
+                    color: isDarkMode ? "#fff" : "#000",
                   },
-                  '& .MuiInputLabel-root': {
-                    color: isDarkMode ? '#fff' : '#000',
+                  "& .MuiInputLabel-root": {
+                    color: isDarkMode ? "#fff" : "#000",
                   },
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: isDarkMode ? '#fff' : '#000',
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: isDarkMode ? "#fff" : "#000",
                     },
-                    '&:hover fieldset': {
-                      borderColor: isDarkMode ? '#bbb' : '#000',
+                    "&:hover fieldset": {
+                      borderColor: isDarkMode ? "#bbb" : "#000",
                     },
                   },
                 }}
                 InputLabelProps={{
-                  style: { color: isDarkMode ? '#fff' : '#000' },
+                  style: { color: isDarkMode ? "#fff" : "#000" },
                 }}
                 InputProps={{
-                  style: { color: isDarkMode ? '#fff' : '#000' },
+                  style: { color: isDarkMode ? "#fff" : "#000" },
                 }}
               />
               <TextField
@@ -305,26 +317,26 @@ export default function Register() {
                 onChange={(e) => setPassword(e.target.value)}
                 sx={{
                   marginBottom: 2,
-                  '& .MuiInputBase-input': {
-                    color: isDarkMode ? '#fff' : '#000',
+                  "& .MuiInputBase-input": {
+                    color: isDarkMode ? "#fff" : "#000",
                   },
-                  '& .MuiInputLabel-root': {
-                    color: isDarkMode ? '#fff' : '#000',
+                  "& .MuiInputLabel-root": {
+                    color: isDarkMode ? "#fff" : "#000",
                   },
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: isDarkMode ? '#fff' : '#000',
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: isDarkMode ? "#fff" : "#000",
                     },
-                    '&:hover fieldset': {
-                      borderColor: isDarkMode ? '#bbb' : '#000',
+                    "&:hover fieldset": {
+                      borderColor: isDarkMode ? "#bbb" : "#000",
                     },
                   },
                 }}
                 InputLabelProps={{
-                  style: { color: isDarkMode ? '#fff' : '#000' },
+                  style: { color: isDarkMode ? "#fff" : "#000" },
                 }}
                 InputProps={{
-                  style: { color: isDarkMode ? '#fff' : '#000' },
+                  style: { color: isDarkMode ? "#fff" : "#000" },
                 }}
               />
               <TextField
@@ -336,26 +348,26 @@ export default function Register() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 sx={{
                   marginBottom: 2,
-                  '& .MuiInputBase-input': {
-                    color: isDarkMode ? '#fff' : '#000',
+                  "& .MuiInputBase-input": {
+                    color: isDarkMode ? "#fff" : "#000",
                   },
-                  '& .MuiInputLabel-root': {
-                    color: isDarkMode ? '#fff' : '#000',
+                  "& .MuiInputLabel-root": {
+                    color: isDarkMode ? "#fff" : "#000",
                   },
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: isDarkMode ? '#fff' : '#000',
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: isDarkMode ? "#fff" : "#000",
                     },
-                    '&:hover fieldset': {
-                      borderColor: isDarkMode ? '#bbb' : '#000',
+                    "&:hover fieldset": {
+                      borderColor: isDarkMode ? "#bbb" : "#000",
                     },
                   },
                 }}
                 InputLabelProps={{
-                  style: { color: isDarkMode ? '#fff' : '#000' },
+                  style: { color: isDarkMode ? "#fff" : "#000" },
                 }}
                 InputProps={{
-                  style: { color: isDarkMode ? '#fff' : '#000' },
+                  style: { color: isDarkMode ? "#fff" : "#000" },
                 }}
               />
             </Box>
@@ -365,23 +377,39 @@ export default function Register() {
               onClick={handleRegister}
               sx={{
                 backgroundColor: darkGreenTheme.palette.primary.main,
-                color: '#fff',
-                '&:hover': {
-                  backgroundColor: '#004d00', // Darker green on hover
+                color: "#fff",
+                "&:hover": {
+                  backgroundColor: "#004d00", // Darker green on hover
                 },
               }}
             >
               Register
             </Button>
             <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-              Already have an account? <a href="/auth/login" style={{ color: darkGreenTheme.palette.primary.main }}>Login</a>
+              Already have an account?{" "}
+              <a
+                href="/auth/login"
+                style={{ color: darkGreenTheme.palette.primary.main }}
+              >
+                Login
+              </a>
             </Typography>
           </Paper>
         </Container>
 
         {/* Footer */}
-        <Box sx={{ mt: 'auto', textAlign: 'center', py: 2, backgroundColor: darkGreenTheme.palette.primary.main, color: '#ffffff' }}>
-          <Typography variant="body2">&copy; {new Date().getFullYear()} ToDo App. All Rights Reserved.</Typography>
+        <Box
+          sx={{
+            mt: "auto",
+            textAlign: "center",
+            py: 2,
+            backgroundColor: darkGreenTheme.palette.primary.main,
+            color: "#ffffff",
+          }}
+        >
+          <Typography variant="body2">
+            &copy; {new Date().getFullYear()} ToDo App. All Rights Reserved.
+          </Typography>
         </Box>
       </div>
     </ThemeProvider>

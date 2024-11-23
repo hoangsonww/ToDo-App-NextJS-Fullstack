@@ -162,7 +162,7 @@ todo-app-fullstack-nextjs/
 Here's a table listing all the API endpoints provided by this application:
 
 | HTTP Method | Endpoint             | Description                       |
-|-------------|----------------------|-----------------------------------|
+| ----------- | -------------------- | --------------------------------- |
 | `POST`      | `/api/auth/login`    | Log in with username and password |
 | `POST`      | `/api/auth/register` | Register a new user               |
 | `GET`       | `/api/todos`         | Fetch all todos for a user        |
@@ -254,8 +254,10 @@ The production build will be served at `http://localhost:3000`.
 
 1. **Visit the Landing Page** (`/landing`): Introduces the app with the option to log in or register.
 2. **Authentication**:
-  - Register: Create a new account via the `/auth/register` page.
-  - Login: Access your account through the `/auth/login` page.
+
+- Register: Create a new account via the `/auth/register` page.
+- Login: Access your account through the `/auth/login` page.
+
 3. **Manage To-Dos**: Access the main to-do list page (`/`) where you can add, edit, and delete to-dos, as well as toggle dark mode.
 
 ## 💡 **Notes**
@@ -283,7 +285,7 @@ The tests will run and display the results in the terminal.
 
 ## 🚀 **Live Deployment**
 
-The application is deployed live on **Vercel**. You can access it at [https://to-do-app-next-js-fullstack.vercel.app/](https://to-do-app-next-js-fullstack.vercel.app/).
+The application is deployed live on **Vercel**. You can access it at [https://todo-app-nextjs-stack.vercel.app/](https://todo-app-nextjs-stack.vercel.app/landing).
 
 ## 🐳 **Containerization**
 

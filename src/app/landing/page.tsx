@@ -1,6 +1,5 @@
-// src/app/page.tsx
-'use client';
-import React, {useEffect, useState} from 'react';
+"use client";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -14,40 +13,50 @@ import {
   CssBaseline,
   Paper,
   Grid,
-} from '@mui/material';
-import '../page.css';
-import { Brightness4, Brightness7 } from '@mui/icons-material';
-import Link from 'next/link';
+} from "@mui/material";
+import "../page.css";
+import { Brightness4, Brightness7 } from "@mui/icons-material";
+import Link from "next/link";
 
 const darkGreenTheme = createTheme({
   palette: {
     primary: {
-      main: '#006400', // Dark green
+      main: "#006400", // Dark green
     },
     secondary: {
-      main: '#ffffff', // White
+      main: "#ffffff", // White
     },
     background: {
-      default: '#f5f5f5',
-      paper: '#ffffff',
+      default: "#f5f5f5",
+      paper: "#ffffff",
     },
   },
   typography: {
-    fontFamily: 'Poppins, sans-serif',
+    fontFamily: "Poppins, sans-serif",
   },
 });
 
 export default function LandingPage() {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [animationClass, setAnimationClass] = useState("");
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
-    localStorage.setItem('darkMode', JSON.stringify(!isDarkMode));
+    localStorage.setItem("darkMode", JSON.stringify(!isDarkMode));
   };
 
   useEffect(() => {
-    const prefersDarkMode = JSON.parse(localStorage.getItem('darkMode') || 'true');
+    const prefersDarkMode = JSON.parse(
+      localStorage.getItem("darkMode") || "true",
+    );
     setIsDarkMode(prefersDarkMode);
+
+    // Add the animation class after component mounts
+    const timer = setTimeout(() => {
+      setAnimationClass("animated");
+    }, 100); // Small delay for the effect
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -55,39 +64,42 @@ export default function LandingPage() {
       <CssBaseline />
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100vh',
-          backgroundColor: isDarkMode ? '#000000' : '#ffffff',
-          color: isDarkMode ? '#ffffff' : '#000000',
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+          backgroundColor: isDarkMode ? "#000000" : "#ffffff",
+          color: isDarkMode ? "#ffffff" : "#000000",
         }}
       >
         {/* Navbar */}
-        <AppBar position="sticky" sx={{ backgroundColor: darkGreenTheme.palette.primary.main }}>
+        <AppBar
+          position="sticky"
+          sx={{ backgroundColor: darkGreenTheme.palette.primary.main }}
+        >
           <Toolbar>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              <Link href="/" style={{ color: '#fff', textDecoration: 'none' }}>
+              <Link href="/" style={{ color: "#fff", textDecoration: "none" }}>
                 The NextJS ToDo App
               </Link>
             </Typography>
             <Link href="/auth/login" passHref>
               <Button
                 sx={{
-                  color: '#ffffff',
-                  textDecoration: 'none',
-                  position: 'relative',
-                  '&::after': {
+                  color: "#ffffff",
+                  textDecoration: "none",
+                  position: "relative",
+                  "&::after": {
                     content: '""',
-                    position: 'absolute',
+                    position: "absolute",
                     bottom: 0,
                     left: 0,
-                    height: '2px',
-                    width: '0',
-                    backgroundColor: '#ffffff',
-                    transition: 'width 0.3s',
+                    height: "2px",
+                    width: "0",
+                    backgroundColor: "#ffffff",
+                    transition: "width 0.3s",
                   },
-                  '&:hover::after': {
-                    width: '100%',
+                  "&:hover::after": {
+                    width: "100%",
                   },
                 }}
               >
@@ -97,21 +109,21 @@ export default function LandingPage() {
             <Link href="/auth/register" passHref>
               <Button
                 sx={{
-                  color: '#ffffff',
-                  textDecoration: 'none',
-                  position: 'relative',
-                  '&::after': {
+                  color: "#ffffff",
+                  textDecoration: "none",
+                  position: "relative",
+                  "&::after": {
                     content: '""',
-                    position: 'absolute',
+                    position: "absolute",
                     bottom: 0,
                     left: 0,
-                    height: '2px',
-                    width: '0',
-                    backgroundColor: '#ffffff',
-                    transition: 'width 0.3s',
+                    height: "2px",
+                    width: "0",
+                    backgroundColor: "#ffffff",
+                    transition: "width 0.3s",
                   },
-                  '&:hover::after': {
-                    width: '100%',
+                  "&:hover::after": {
+                    width: "100%",
                   },
                 }}
               >
@@ -126,33 +138,34 @@ export default function LandingPage() {
 
         {/* Hero Section */}
         <Box
+          className={animationClass}
           sx={{
             flexGrow: 1,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            textAlign: 'center',
-            padding: '50px 20px',
-            backgroundColor: isDarkMode ? '#222' : '#f9f9f9',
-            color: isDarkMode ? '#fff' : '#000',
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            padding: "50px 20px",
+            backgroundColor: isDarkMode ? "#222" : "#f9f9f9",
+            color: isDarkMode ? "#fff" : "#000",
           }}
         >
           <Container>
-            <Typography variant="h2" gutterBottom sx={{ fontWeight: 'bold' }}>
+            <Typography variant="h2" gutterBottom sx={{ fontWeight: "bold" }}>
               Welcome to the NextJS To-Do App
             </Typography>
             <Typography variant="h6" gutterBottom>
-              Organize your tasks, increase your productivity, and manage your to-dos effortlessly with our simple and
-              intuitive app.
+              Organize your tasks, increase your productivity, and manage your
+              to-dos effortlessly with our simple and intuitive app.
             </Typography>
             <Link href="/auth/register" passHref>
               <Button
                 variant="contained"
                 sx={{
                   backgroundColor: darkGreenTheme.palette.primary.main,
-                  color: '#fff',
+                  color: "#fff",
                   mt: 3,
-                  '&:hover': { backgroundColor: '#004d00' },
+                  "&:hover": { backgroundColor: "#004d00" },
                 }}
               >
                 Get Started
@@ -162,8 +175,13 @@ export default function LandingPage() {
         </Box>
 
         {/* Features Section */}
-        <Container sx={{ py: 8 }}>
-          <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold' }}>
+        <Container className={animationClass} sx={{ py: 8 }}>
+          <Typography
+            variant="h4"
+            align="center"
+            gutterBottom
+            sx={{ fontWeight: "bold" }}
+          >
             Why Choose Us?
           </Typography>
           <Grid container spacing={4}>
@@ -172,9 +190,9 @@ export default function LandingPage() {
                 elevation={4}
                 sx={{
                   padding: 3,
-                  backgroundColor: isDarkMode ? '#333' : '#fff',
-                  color: isDarkMode ? '#fff' : '#000',
-                  textAlign: 'center',
+                  backgroundColor: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  textAlign: "center",
                   borderRadius: 2,
                   boxShadow: 3,
                 }}
@@ -183,8 +201,8 @@ export default function LandingPage() {
                   Easy to Use
                 </Typography>
                 <Typography variant="body2">
-                  Our app is designed with simplicity in mind. Easily manage your tasks with a clean and intuitive
-                  interface.
+                  Our app is designed with simplicity in mind. Easily manage
+                  your tasks with a clean and intuitive interface.
                 </Typography>
               </Paper>
             </Grid>
@@ -193,9 +211,9 @@ export default function LandingPage() {
                 elevation={4}
                 sx={{
                   padding: 3,
-                  backgroundColor: isDarkMode ? '#333' : '#fff',
-                  color: isDarkMode ? '#fff' : '#000',
-                  textAlign: 'center',
+                  backgroundColor: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  textAlign: "center",
                   borderRadius: 2,
                   boxShadow: 3,
                 }}
@@ -204,7 +222,8 @@ export default function LandingPage() {
                   Stay Organized
                 </Typography>
                 <Typography variant="body2">
-                  Keep track of your tasks, categorize them, and stay organized. Never miss an important task again.
+                  Keep track of your tasks, categorize them, and stay organized.
+                  Never miss an important task again.
                 </Typography>
               </Paper>
             </Grid>
@@ -213,9 +232,9 @@ export default function LandingPage() {
                 elevation={4}
                 sx={{
                   padding: 3,
-                  backgroundColor: isDarkMode ? '#333' : '#fff',
-                  color: isDarkMode ? '#fff' : '#000',
-                  textAlign: 'center',
+                  backgroundColor: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  textAlign: "center",
                   borderRadius: 2,
                   boxShadow: 3,
                 }}
@@ -224,8 +243,8 @@ export default function LandingPage() {
                   Dark Mode Support
                 </Typography>
                 <Typography variant="body2">
-                  Enjoy using the app in both light and dark modes. Switch between modes for a more comfortable
-                  experience.
+                  Enjoy using the app in both light and dark modes. Switch
+                  between modes for a more comfortable experience.
                 </Typography>
               </Paper>
             </Grid>
@@ -234,11 +253,12 @@ export default function LandingPage() {
 
         {/* Call-to-Action Section */}
         <Box
+          className={animationClass}
           sx={{
-            textAlign: 'center',
+            textAlign: "center",
             py: 4,
-            backgroundColor: isDarkMode ? '#444' : '#e8e8e8',
-            color: isDarkMode ? '#fff' : '#000',
+            backgroundColor: isDarkMode ? "#444" : "#e8e8e8",
+            color: isDarkMode ? "#fff" : "#000",
           }}
         >
           <Typography variant="h5" gutterBottom>
@@ -249,9 +269,9 @@ export default function LandingPage() {
               variant="contained"
               sx={{
                 backgroundColor: darkGreenTheme.palette.primary.main,
-                color: '#fff',
+                color: "#fff",
                 mt: 2,
-                '&:hover': { backgroundColor: '#004d00' },
+                "&:hover": { backgroundColor: "#004d00" },
               }}
             >
               Start Your Journey
@@ -260,8 +280,18 @@ export default function LandingPage() {
         </Box>
 
         {/* Footer */}
-        <Box sx={{ mt: 'auto', textAlign: 'center', py: 2, backgroundColor: darkGreenTheme.palette.primary.main, color: '#ffffff' }}>
-          <Typography variant="body2">&copy; {new Date().getFullYear()} ToDo App. All Rights Reserved.</Typography>
+        <Box
+          sx={{
+            mt: "auto",
+            textAlign: "center",
+            py: 2,
+            backgroundColor: darkGreenTheme.palette.primary.main,
+            color: "#ffffff",
+          }}
+        >
+          <Typography variant="body2">
+            &copy; {new Date().getFullYear()} ToDo App. All Rights Reserved.
+          </Typography>
         </Box>
       </div>
     </ThemeProvider>
