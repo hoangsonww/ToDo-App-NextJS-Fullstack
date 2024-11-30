@@ -84,8 +84,6 @@ export default function ForgotPassword() {
     );
     if (storedUser) {
       setUser(storedUser);
-    } else {
-      router.push("/auth/login");
     }
   }, [router]);
 
