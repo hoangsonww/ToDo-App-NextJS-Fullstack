@@ -139,8 +139,6 @@ export default function Register() {
     );
     if (storedUser) {
       setUser(storedUser);
-    } else {
-      router.push("/auth/login");
     }
   }, [router]);
 
