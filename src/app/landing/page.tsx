@@ -74,8 +74,6 @@ export default function LandingPage() {
     );
     if (storedUser) {
       setUser(storedUser);
-    } else {
-      router.push("/auth/login");
     }
   }, [router]);
 
