@@ -1,33 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>https://docuthinker.vercel.app/</loc>
-        <lastmod>2024-11-11</lastmod>
+        <loc>https://todo-app-nextjs-stack.vercel.app/</loc>
+        <lastmod>2024-11-30</lastmod>
         <priority>1.00</priority>
     </url>
     <url>
-        <loc>https://docuthinker.vercel.app/home</loc>
-        <lastmod>2024-11-11</lastmod>
+        <loc>https://todo-app-nextjs-stack.vercel.app/landing</loc>
+        <lastmod>2024-11-30</lastmod>
+        <priority>0.90</priority>
+    </url>
+    <url>
+        <loc>https://todo-app-nextjs-stack.vercel.app/auth/login</loc>
+        <lastmod>2024-11-30</lastmod>
         <priority>0.80</priority>
     </url>
     <url>
-        <loc>https://docuthinker.vercel.app/how-to-use</loc>
-        <lastmod>2024-11-11</lastmod>
+        <loc>https://todo-app-nextjs-stack.vercel.app/auth/register</loc>
+        <lastmod>2024-11-30</lastmod>
         <priority>0.80</priority>
-    </url>
-    <url>
-        <loc>https://docuthinker.vercel.app/login</loc>
-        <lastmod>2024-11-11</lastmod>
-        <priority>0.80</priority>
-    </url>
-    <url>
-        <loc>https://docuthinker.vercel.app/register</loc>
-        <lastmod>2024-11-11</lastmod>
-        <priority>0.80</priority>
-    </url>
-    <url>
-        <loc>https://docuthinker.vercel.app/forgot-password</loc>
-        <lastmod>2024-11-11</lastmod>
-        <priority>0.60</priority>
     </url>
 </urlset>
