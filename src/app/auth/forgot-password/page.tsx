@@ -99,7 +99,6 @@ export default function ForgotPassword() {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
-
   const toggleDarkMode = () => {
     const newDarkMode = !isDarkMode;
     setIsDarkMode(newDarkMode);
