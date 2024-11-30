@@ -10,14 +10,16 @@ import {
   Paper,
   Button,
   TextField,
+  InputAdornment,
   Box,
+  CircularProgress,
   ThemeProvider,
   createTheme,
   CssBaseline,
 } from "@mui/material";
-import { Brightness4, Brightness7 } from "@mui/icons-material";
-import "../../page.css";
+import { Brightness4, Brightness7, Visibility, VisibilityOff } from "@mui/icons-material";
 import Link from "next/link";
+import "../../page.css";
 
 const darkGreenTheme = createTheme({
   palette: {
@@ -37,76 +39,74 @@ const darkGreenTheme = createTheme({
   },
 });
 
-interface User {
-  id: number;
-  username: string;
-  password: string;
-}
-
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
-  const [user, setUser] = useState<{ id: number; username: string } | null>(
-    null,
-  );
+  const [user, setUser] = useState<{ id: number; username: string } | null>(null);
 
   useEffect(() => {
-    const storedUser = JSON.parse(
-      localStorage.getItem("currentUser") || "null",
-    );
-    if (storedUser) {
-      setUser(storedUser);
+    const storedDarkMode = JSON.parse(localStorage.getItem("darkMode") || "false");
+    setIsDarkMode(storedDarkMode);
+  }, []);
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    localStorage.setItem("darkMode", JSON.stringify(newDarkMode));
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleLogin = async () => {
+    if (!username || !password) {
+      setError("Username and password are required");
+      return;
     }
-  }, [router]);
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(data.message);
+        localStorage.setItem("currentUser", JSON.stringify(data.user));
+        setUser(data.user);
+        router.push("/");
+      } else {
+        setError(data.error || "Invalid username or password");
+      }
+    } catch (err) {
+      console.error("Error during login:", err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const logout = () => {
     localStorage.removeItem("currentUser");
     setUser(null);
     router.push("/auth/login");
   };
-
-  const handleLogin = () => {
-    if (!username || !password) {
-      setError("Username and password are required");
-      return;
-    }
-
-    const existingUsers: User[] = JSON.parse(
-      localStorage.getItem("users") || "[]",
-    );
-
-    const user = existingUsers.find(
-      (user) => user.username === username && user.password === password,
-    );
-
-    if (!user) {
-      setError("Invalid username or password");
-      return;
-    }
-
-    // Store user session in localStorage
-    localStorage.setItem("currentUser", JSON.stringify(user));
-
-    alert("Login successful!");
-    router.push("/");
-  };
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    localStorage.setItem("darkMode", JSON.stringify(!isDarkMode));
-  };
-
-  useEffect(() => {
-    const storedDarkMode = JSON.parse(
-      localStorage.getItem("darkMode") || "true",
-    );
-    setIsDarkMode(storedDarkMode);
-  }, []);
 
   return (
     <ThemeProvider theme={darkGreenTheme}>
@@ -116,8 +116,8 @@ export default function Login() {
           display: "flex",
           flexDirection: "column",
           minHeight: "100vh",
-          backgroundColor: isDarkMode ? "#000000" : "#ffffff", // Background color
-          color: isDarkMode ? "#ffffff" : "#000000", // Text color
+          backgroundColor: isDarkMode ? "#000000" : "#ffffff",
+          color: isDarkMode ? "#ffffff" : "#000000",
         }}
       >
         {/* Navbar */}
@@ -129,7 +129,6 @@ export default function Login() {
               </Link>
             </Typography>
 
-            {/* Navbar Links with Active and Hover Underline Effect */}
             <Link href="/" passHref>
               <Button
                 sx={{
@@ -143,7 +142,7 @@ export default function Login() {
                     height: "2px",
                     width: isActive("/") ? "100%" : "0",
                     backgroundColor: "#ffffff",
-                    borderRadius: isActive("/") ? "10px" : "0", // Rounded border for active link
+                    borderRadius: "10px",
                     transition: "width 0.3s",
                   },
                   "&:hover::after": {
@@ -155,7 +154,6 @@ export default function Login() {
               </Button>
             </Link>
 
-            {/* Conditional Login/Logout Button */}
             {user ? (
               <Button
                 onClick={logout}
@@ -197,7 +195,7 @@ export default function Login() {
                       height: "2px",
                       width: isActive("/auth/login") ? "100%" : "0",
                       backgroundColor: "#ffffff",
-                      borderRadius: isActive("/auth/login") ? "10px" : "0",
+                      borderRadius: "10px",
                       transition: "width 0.3s",
                     },
                     "&:hover::after": {
@@ -223,7 +221,7 @@ export default function Login() {
                     height: "2px",
                     width: isActive("/auth/register") ? "100%" : "0",
                     backgroundColor: "#ffffff",
-                    borderRadius: isActive("/auth/register") ? "10px" : "0",
+                    borderRadius: "10px",
                     transition: "width 0.3s",
                   },
                   "&:hover::after": {
@@ -235,7 +233,6 @@ export default function Login() {
               </Button>
             </Link>
 
-            {/* Dark Mode Toggle */}
             <IconButton color="inherit" onClick={toggleDarkMode}>
               {isDarkMode ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
@@ -259,15 +256,15 @@ export default function Login() {
               boxShadow: 3,
               width: "100%",
               maxWidth: "400px",
-              backgroundColor: isDarkMode ? "#333" : "#fff", // Modal's background color
-              color: isDarkMode ? "#fff" : "#000", // Text color
+              backgroundColor: isDarkMode ? "#333" : "#fff",
+              color: isDarkMode ? "#fff" : "#000",
             }}
           >
             <Typography variant="h4" align="center" gutterBottom>
               Login
             </Typography>
             {error && (
-              <Typography color="error" align="center">
+              <Typography color="error" align="center" sx={{ mb: 2 }}>
                 {error}
               </Typography>
             )}
@@ -278,23 +275,8 @@ export default function Login() {
                 fullWidth
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                sx={{
-                  marginBottom: 2,
-                  "& .MuiInputBase-input": {
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: isDarkMode ? "#fff" : "#000",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: isDarkMode ? "#bbb" : "#000",
-                    },
-                  },
-                }}
+                onKeyPress={(e) => e.key === "Enter" && handleLogin()}
+                sx={{ marginBottom: 2 }}
                 InputLabelProps={{
                   style: { color: isDarkMode ? "#fff" : "#000" },
                 }}
@@ -304,32 +286,25 @@ export default function Login() {
               />
               <TextField
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 variant="outlined"
                 fullWidth
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                sx={{
-                  marginBottom: 2,
-                  "& .MuiInputBase-input": {
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: isDarkMode ? "#fff" : "#000",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: isDarkMode ? "#bbb" : "#000",
-                    },
-                  },
+                onKeyPress={(e) => e.key === "Enter" && handleLogin()}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={togglePasswordVisibility}>
+                        {showPassword ?
+                          <VisibilityOff sx={{ color: isDarkMode ? "#fff" : "#000" }}/> :
+                          <Visibility sx={{ color: isDarkMode ? "#fff" : "#000" }}/>
+                        }
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 }}
                 InputLabelProps={{
-                  style: { color: isDarkMode ? "#fff" : "#000" },
-                }}
-                InputProps={{
                   style: { color: isDarkMode ? "#fff" : "#000" },
                 }}
               />
@@ -338,15 +313,16 @@ export default function Login() {
               variant="contained"
               fullWidth
               onClick={handleLogin}
+              disabled={isLoading}
               sx={{
                 backgroundColor: darkGreenTheme.palette.primary.main,
                 color: "#fff",
                 "&:hover": {
-                  backgroundColor: "#004d00", // Darker green on hover
+                  backgroundColor: "#004d00",
                 },
               }}
             >
-              Login
+              {isLoading ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "Login"}
             </Button>
             <Typography variant="body2" align="center" sx={{ mt: 2 }}>
               Don&#39;t have an account?{" "}

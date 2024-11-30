@@ -10,13 +10,15 @@ import {
   Paper,
   Button,
   TextField,
+  InputAdornment,
   Box,
   ThemeProvider,
   createTheme,
   CssBaseline,
+  CircularProgress
 } from "@mui/material";
 import Link from "next/link";
-import { Brightness4, Brightness7 } from "@mui/icons-material";
+import { Brightness4, Brightness7, Visibility, VisibilityOff } from "@mui/icons-material";
 import "../../page.css";
 
 const darkGreenTheme = createTheme({
@@ -37,16 +39,13 @@ const darkGreenTheme = createTheme({
   },
 });
 
-interface User {
-  id: number;
-  username: string;
-  password: string;
-}
-
 export default function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const router = useRouter();
@@ -56,16 +55,29 @@ export default function Register() {
     null,
   );
 
+  // Load dark mode from localStorage
   useEffect(() => {
-    const storedUser = JSON.parse(
-      localStorage.getItem("currentUser") || "null",
-    );
-    if (storedUser) {
-      setUser(storedUser);
-    }
-  }, [router]);
+    const storedDarkMode = JSON.parse(localStorage.getItem("darkMode") || "false");
+    setIsDarkMode(storedDarkMode);
+  }, []);
 
-  const handleRegister = () => {
+  const toggleDarkMode = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    localStorage.setItem("darkMode", JSON.stringify(newDarkMode));
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const handleRegister = async () => {
+    setIsLoading(true);
+
     if (!username || !password || !confirmPassword) {
       setError("All fields are required");
       return;
@@ -76,43 +88,36 @@ export default function Register() {
       return;
     }
 
-    // Retrieve existing users from localStorage and cast them to the User array type
-    const existingUsers: User[] = JSON.parse(
-      localStorage.getItem("users") || "[]",
-    );
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    // Check if user already exists
-    if (existingUsers.some((user) => user.username === username)) {
-      setError("User already exists");
-      return;
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(data.message);
+        router.push("/auth/login");
+      } else {
+        setError(data.error || "Registration failed");
+      }
+
+      setIsLoading(false);
+    } catch (err) {
+      console.error("Error during registration:", err);
+      setError("Something went wrong. Please try again.");
+      setIsLoading(false);
     }
-
-    // Register the user with the User type
-    const newUser: User = { id: existingUsers.length + 1, username, password };
-    existingUsers.push(newUser);
-    localStorage.setItem("users", JSON.stringify(existingUsers));
-
-    alert("User registered successfully! Please log in.");
-    router.push("/auth/login");
-  };
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    localStorage.setItem("darkMode", JSON.stringify(!isDarkMode));
   };
 
   const logout = () => {
-    localStorage.removeItem("currentUser");
     setUser(null);
     router.push("/auth/login");
   };
-
-  useEffect(() => {
-    const storedDarkMode = JSON.parse(
-      localStorage.getItem("darkMode") || "true",
-    );
-    setIsDarkMode(storedDarkMode);
-  }, []);
 
   return (
     <ThemeProvider theme={darkGreenTheme}>
@@ -149,7 +154,7 @@ export default function Register() {
                     height: "2px",
                     width: isActive("/") ? "100%" : "0",
                     backgroundColor: "#ffffff",
-                    borderRadius: isActive("/") ? "10px" : "0", // Rounded border for active link
+                    borderRadius: isActive("/") ? "10px" : "0",
                     transition: "width 0.3s",
                   },
                   "&:hover::after": {
@@ -265,15 +270,15 @@ export default function Register() {
               boxShadow: 3,
               width: "100%",
               maxWidth: "400px",
-              backgroundColor: isDarkMode ? "#333" : "#fff", // Modal's background color
-              color: isDarkMode ? "#fff" : "#000", // Text color
+              backgroundColor: isDarkMode ? "#333" : "#fff",
+              color: isDarkMode ? "#fff" : "#000",
             }}
           >
             <Typography variant="h4" align="center" gutterBottom>
               Register
             </Typography>
             {error && (
-              <Typography color="error" align="center">
+              <Typography color="error" align="center" sx={{ mb: 2 }}>
                 {error}
               </Typography>
             )}
@@ -284,23 +289,7 @@ export default function Register() {
                 fullWidth
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                sx={{
-                  marginBottom: 2,
-                  "& .MuiInputBase-input": {
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: isDarkMode ? "#fff" : "#000",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: isDarkMode ? "#bbb" : "#000",
-                    },
-                  },
-                }}
+                sx={{ marginBottom: 2 }}
                 InputLabelProps={{
                   style: { color: isDarkMode ? "#fff" : "#000" },
                 }}
@@ -310,63 +299,50 @@ export default function Register() {
               />
               <TextField
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 variant="outlined"
                 fullWidth
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                sx={{
-                  marginBottom: 2,
-                  "& .MuiInputBase-input": {
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: isDarkMode ? "#fff" : "#000",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: isDarkMode ? "#bbb" : "#000",
-                    },
-                  },
-                }}
-                InputLabelProps={{
-                  style: { color: isDarkMode ? "#fff" : "#000" },
-                }}
+                onKeyPress={(e) => e.key === "Enter" && handleRegister()}
+                sx={{ marginBottom: 2 }}
                 InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={togglePasswordVisibility}>
+                        {showPassword ?
+                          <VisibilityOff sx={{ color: isDarkMode ? "#fff" : "#000" }}/> :
+                          <Visibility sx={{ color: isDarkMode ? "#fff" : "#000" }}/>
+                        }
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                   style: { color: isDarkMode ? "#fff" : "#000" },
                 }}
               />
               <TextField
                 label="Confirm Password"
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 variant="outlined"
                 fullWidth
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                sx={{
-                  marginBottom: 2,
-                  "& .MuiInputBase-input": {
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: isDarkMode ? "#fff" : "#000",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: isDarkMode ? "#bbb" : "#000",
-                    },
-                  },
-                }}
-                InputLabelProps={{
+                onKeyPress={(e) => e.key === "Enter" && handleRegister()}
+                sx={{ marginBottom: 2 }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={toggleConfirmPasswordVisibility}>
+                        {showConfirmPassword ?
+                          <VisibilityOff sx={{ color: isDarkMode ? "#fff" : "#000" }}/> :
+                          <Visibility sx={{ color: isDarkMode ? "#fff" : "#000" }}/>
+                        }
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                   style: { color: isDarkMode ? "#fff" : "#000" },
                 }}
-                InputProps={{
+                InputLabelProps={{
                   style: { color: isDarkMode ? "#fff" : "#000" },
                 }}
               />
@@ -379,11 +355,15 @@ export default function Register() {
                 backgroundColor: darkGreenTheme.palette.primary.main,
                 color: "#fff",
                 "&:hover": {
-                  backgroundColor: "#004d00", // Darker green on hover
+                  backgroundColor: "#004d00",
                 },
               }}
             >
-              Register
+              {isLoading ? (
+                <CircularProgress size={24} sx={{ color: "#fff" }} />
+              ) : (
+                "Register"
+              )}
             </Button>
             <Typography variant="body2" align="center" sx={{ mt: 2 }}>
               Already have an account?{" "}
