@@ -32,10 +32,10 @@ import { usePathname, useRouter } from "next/navigation";
 const darkGreenTheme = createTheme({
   palette: {
     primary: {
-      main: "#006400", // Dark green
+      main: "#006400",
     },
     secondary: {
-      main: "#ffffff", // White
+      main: "#ffffff",
     },
     background: {
       default: "#f5f5f5",
