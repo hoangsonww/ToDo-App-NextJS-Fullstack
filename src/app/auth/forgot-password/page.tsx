@@ -67,10 +67,14 @@ export default function ForgotPassword() {
   const router = useRouter();
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
-  const [user, setUser] = useState<{ id: number; username: string } | null>(null);
+  const [user, setUser] = useState<{ id: number; username: string } | null>(
+    null,
+  );
 
   useEffect(() => {
-    const storedDarkMode = JSON.parse(localStorage.getItem("darkMode") || "false");
+    const storedDarkMode = JSON.parse(
+      localStorage.getItem("darkMode") || "false",
+    );
     setIsDarkMode(storedDarkMode);
   }, []);
 
@@ -133,27 +137,46 @@ export default function ForgotPassword() {
         </ListItem>
         {user ? (
           <ListItem disablePadding>
-            <ListItemButton onClick={() => { logout(); handleDrawerToggle(); }}>
+            <ListItemButton
+              onClick={() => {
+                logout();
+                handleDrawerToggle();
+              }}
+            >
               <ListItemText primary="Logout" sx={{ color: "red" }} />
             </ListItemButton>
           </ListItem>
         ) : (
           <>
             <ListItem disablePadding>
-              <ListItemButton component="a" href="/auth/login" onClick={handleDrawerToggle}>
+              <ListItemButton
+                component="a"
+                href="/auth/login"
+                onClick={handleDrawerToggle}
+              >
                 <ListItemText primary="Login" />
               </ListItemButton>
             </ListItem>
           </>
         )}
         <ListItem disablePadding>
-          <ListItemButton component="a" href="/auth/register" onClick={handleDrawerToggle}>
+          <ListItemButton
+            component="a"
+            href="/auth/register"
+            onClick={handleDrawerToggle}
+          >
             <ListItemText primary="Register" />
           </ListItemButton>
         </ListItem>
 
         {/* Divider */}
-        <div style={{ borderTop: isDarkMode ? "1px solid #fff" : "1px solid #333", marginTop: 2, marginBottom: 2 }}></div>
+        <div
+          style={{
+            borderTop: isDarkMode ? "1px solid #fff" : "1px solid #333",
+            marginTop: 2,
+            marginBottom: 2,
+          }}
+        ></div>
 
         {/* Dark mode toggle */}
         <ListItem disablePadding>
@@ -381,11 +404,11 @@ export default function ForgotPassword() {
               sx={{
                 display: { xs: "block", md: "none" },
                 textAlign: "center",
-                width: '50px',
-                height: '50px',
+                width: "50px",
+                height: "50px",
               }}
             >
-              <MenuIcon sx={{ mt: '5px' }} />
+              <MenuIcon sx={{ mt: "5px" }} />
             </IconButton>
           </Toolbar>
 
@@ -476,10 +499,15 @@ export default function ForgotPassword() {
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton onClick={togglePasswordVisibility}>
-                          {showPassword ?
-                            <VisibilityOff sx={{ color: isDarkMode ? "#fff" : "#000" }}/> :
-                            <Visibility sx={{ color: isDarkMode ? "#fff" : "#000" }}/>
-                          }
+                          {showPassword ? (
+                            <VisibilityOff
+                              sx={{ color: isDarkMode ? "#fff" : "#000" }}
+                            />
+                          ) : (
+                            <Visibility
+                              sx={{ color: isDarkMode ? "#fff" : "#000" }}
+                            />
+                          )}
                         </IconButton>
                       </InputAdornment>
                     ),
@@ -501,10 +529,15 @@ export default function ForgotPassword() {
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton onClick={toggleConfirmPasswordVisibility}>
-                          {showConfirmPassword ?
-                            <VisibilityOff sx={{ color: isDarkMode ? "#fff" : "#000" }}/> :
-                            <Visibility sx={{ color: isDarkMode ? "#fff" : "#000" }}/>
-                          }
+                          {showConfirmPassword ? (
+                            <VisibilityOff
+                              sx={{ color: isDarkMode ? "#fff" : "#000" }}
+                            />
+                          ) : (
+                            <Visibility
+                              sx={{ color: isDarkMode ? "#fff" : "#000" }}
+                            />
+                          )}
                         </IconButton>
                       </InputAdornment>
                     ),

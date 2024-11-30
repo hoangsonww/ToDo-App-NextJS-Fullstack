@@ -166,7 +166,7 @@ todo-app-fullstack-nextjs/
 Here's a table listing all the API endpoints provided by this application:
 
 | HTTP Method | Endpoint             | Description                       |
-|-------------|----------------------|-----------------------------------|
+| ----------- | -------------------- | --------------------------------- |
 | `POST`      | `/api/auth/login`    | Log in with username and password |
 | `POST`      | `/api/auth/register` | Register a new user               |
 | `GET`       | `/api/todos`         | Fetch all todos for a user        |

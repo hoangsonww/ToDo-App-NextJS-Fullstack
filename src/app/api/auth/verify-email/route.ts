@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   if (!username) {
     return NextResponse.json(
       { error: "Username is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -31,20 +31,23 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json(
         { error: "Username not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Return success response
     return NextResponse.json(
-      { message: "Username exists", user: { id: user._id, username: user.username } },
-      { status: 200 }
+      {
+        message: "Username exists",
+        user: { id: user._id, username: user.username },
+      },
+      { status: 200 },
     );
   } catch (error) {
     console.error("Database connection error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   } finally {
     // Ensure the database connection is closed

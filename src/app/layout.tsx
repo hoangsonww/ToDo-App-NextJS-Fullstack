@@ -31,7 +31,10 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/android-chrome-192x192.png" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#006400" />
-        <meta name="description" content="A simple todo app built with Next.js" />
+        <meta
+          name="description"
+          content="A simple todo app built with Next.js"
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>The Next.js ToDo App</title>
         <meta name="author" content="Son Nguyen" />
@@ -41,11 +44,20 @@ export default function RootLayout({
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@nextjstodoapp" />
         <meta name="twitter:title" content="The Next.js ToDo App" />
-        <meta name="twitter:description" content="A simple todo app built with Next.js" />
+        <meta
+          name="twitter:description"
+          content="A simple todo app built with Next.js"
+        />
         <meta property="og:title" content="The Next.js ToDo App" />
-        <meta property="og:description" content="A simple todo app built with Next.js" />
+        <meta
+          property="og:description"
+          content="A simple todo app built with Next.js"
+        />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://todo-app-nextjs-stack.vercel.app/" />
+        <meta
+          property="og:url"
+          content="https://todo-app-nextjs-stack.vercel.app/"
+        />
         <meta property="og:image" content="/android-chrome-512x512.png" />
         <meta property="og:site_name" content="The Next.js ToDo App" />
         <meta property="og:locale" content="en_US" />

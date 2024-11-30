@@ -124,27 +124,46 @@ export default function Home() {
         </ListItem>
         {user ? (
           <ListItem disablePadding>
-            <ListItemButton onClick={() => { logout(); handleDrawerToggle(); }}>
+            <ListItemButton
+              onClick={() => {
+                logout();
+                handleDrawerToggle();
+              }}
+            >
               <ListItemText primary="Logout" sx={{ color: "red" }} />
             </ListItemButton>
           </ListItem>
         ) : (
           <>
             <ListItem disablePadding>
-              <ListItemButton component="a" href="/auth/login" onClick={handleDrawerToggle}>
+              <ListItemButton
+                component="a"
+                href="/auth/login"
+                onClick={handleDrawerToggle}
+              >
                 <ListItemText primary="Login" />
               </ListItemButton>
             </ListItem>
           </>
         )}
         <ListItem disablePadding>
-          <ListItemButton component="a" href="/auth/register" onClick={handleDrawerToggle}>
+          <ListItemButton
+            component="a"
+            href="/auth/register"
+            onClick={handleDrawerToggle}
+          >
             <ListItemText primary="Register" />
           </ListItemButton>
         </ListItem>
 
         {/* Divider */}
-        <div style={{ borderTop: isDarkMode ? "1px solid #fff" : "1px solid #333", marginTop: 2, marginBottom: 2 }}></div>
+        <div
+          style={{
+            borderTop: isDarkMode ? "1px solid #fff" : "1px solid #333",
+            marginTop: 2,
+            marginBottom: 2,
+          }}
+        ></div>
 
         {/* Dark mode toggle */}
         <ListItem disablePadding>
@@ -419,11 +438,11 @@ export default function Home() {
               sx={{
                 display: { xs: "block", md: "none" },
                 textAlign: "center",
-                width: '50px',
-                height: '50px',
+                width: "50px",
+                height: "50px",
               }}
             >
-              <MenuIcon sx={{ mt: '5px' }} />
+              <MenuIcon sx={{ mt: "5px" }} />
             </IconButton>
           </Toolbar>
 
