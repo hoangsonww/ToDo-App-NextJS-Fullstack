@@ -1,58 +1,41 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Toolbar,
   Typography,
   IconButton,
   Container,
-  Paper,
-  Button,
-  TextField,
-  Select,
-  MenuItem,
   Box,
-  Checkbox,
-  FormControl,
-  InputLabel,
-  List,
-  ListItem,
-  ListItemButton,
-  Drawer,
-  ListItemText,
+  Button,
   ThemeProvider,
   createTheme,
   CssBaseline,
+  Paper,
+  Grid,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Drawer,
 } from "@mui/material";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import "./page.css";
 import {
   Brightness4,
   Brightness7,
-  Delete,
-  AddCircle,
   Close as CloseIcon,
   Menu as MenuIcon,
 } from "@mui/icons-material";
-import { CSSTransition, TransitionGroup } from "react-transition-group";
-import "./page.css";
-
-interface Todo {
-  id: number;
-  task: string;
-  category: string;
-  completed: boolean;
-  userId: number;
-}
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 
 const darkGreenTheme = createTheme({
   palette: {
     primary: {
-      main: "#006400", // Dark green
+      main: "#006400",
     },
     secondary: {
-      main: "#ffffff", // White
+      main: "#ffffff",
     },
     background: {
       default: "#f5f5f5",
@@ -64,16 +47,12 @@ const darkGreenTheme = createTheme({
   },
 });
 
-export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [task, setTask] = useState("");
-  const [category, setCategory] = useState("General");
-  const [error, setError] = useState("");
+export default function LandingPage() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [animationClass, setAnimationClass] = useState("");
   const [user, setUser] = useState<{ id: number; username: string } | null>(
     null,
   );
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isAftenoon, setIsAfternoon] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
@@ -83,16 +62,34 @@ export default function Home() {
     localStorage.setItem("darkMode", JSON.stringify(!isDarkMode));
   };
 
+  const logout = () => {
+    localStorage.removeItem("currentUser");
+    setUser(null);
+    router.push("/auth/login");
+  };
+
   useEffect(() => {
     const storedUser = JSON.parse(
       localStorage.getItem("currentUser") || "null",
     );
     if (storedUser) {
       setUser(storedUser);
-    } else {
-      router.push("/auth/login");
     }
   }, [router]);
+
+  useEffect(() => {
+    const prefersDarkMode = JSON.parse(
+      localStorage.getItem("darkMode") || "true",
+    );
+    setIsDarkMode(prefersDarkMode);
+
+    // Add the animation class after component mounts
+    const timer = setTimeout(() => {
+      setAnimationClass("animated");
+    }, 100); // Small delay for the effect
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -117,13 +114,31 @@ export default function Home() {
         <CloseIcon />
       </IconButton>
       <List>
-        <ListItem disablePadding>
-          <ListItemButton component="a" href="/" onClick={handleDrawerToggle}>
+        <ListItem
+          disablePadding
+          sx={{
+            backgroundColor: isActive("/home")
+              ? "rgba(0, 128, 0, 0.3)"
+              : "inherit",
+          }}
+        >
+          <ListItemButton
+            component="a"
+            href="/home"
+            onClick={handleDrawerToggle}
+          >
             <ListItemText primary="Home" />
           </ListItemButton>
         </ListItem>
         {user ? (
-          <ListItem disablePadding>
+          <ListItem
+            disablePadding
+            sx={{
+              backgroundColor: isActive("/auth/login")
+                ? "rgba(0, 128, 0, 0.3)"
+                : "inherit",
+            }}
+          >
             <ListItemButton
               onClick={() => {
                 logout();
@@ -135,7 +150,14 @@ export default function Home() {
           </ListItem>
         ) : (
           <>
-            <ListItem disablePadding>
+            <ListItem
+              disablePadding
+              sx={{
+                backgroundColor: isActive("/auth/login")
+                  ? "rgba(0, 128, 0, 0.3)"
+                  : "inherit",
+              }}
+            >
               <ListItemButton
                 component="a"
                 href="/auth/login"
@@ -146,7 +168,14 @@ export default function Home() {
             </ListItem>
           </>
         )}
-        <ListItem disablePadding>
+        <ListItem
+          disablePadding
+          sx={{
+            backgroundColor: isActive("/auth/register")
+              ? "rgba(0, 128, 0, 0.3)"
+              : "inherit",
+          }}
+        >
           <ListItemButton
             component="a"
             href="/auth/register"
@@ -191,105 +220,6 @@ export default function Home() {
     </Box>
   );
 
-  useEffect(() => {
-    const storedUser = JSON.parse(
-      localStorage.getItem("currentUser") || "null",
-    );
-    if (storedUser) {
-      setUser(storedUser);
-    } else {
-      router.push("/auth/login");
-    }
-  }, [router]);
-
-  useEffect(() => {
-    const currentUser = localStorage.getItem("currentUser");
-
-    if (!currentUser || currentUser === "null") {
-      router.push("/landing");
-    }
-  }, [router]);
-
-  useEffect(() => {
-    if (user) {
-      fetchTodos();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    const storedDarkMode = JSON.parse(
-      localStorage.getItem("darkMode") || "true",
-    );
-    setIsDarkMode(storedDarkMode);
-  }, []);
-
-  useEffect(() => {
-    const date = new Date();
-    const hours = date.getHours();
-    setIsAfternoon(hours >= 12 && hours < 18);
-  }, []);
-
-  const fetchTodos = () => {
-    const storedTodos = JSON.parse(localStorage.getItem("todos") || "[]");
-    const userTodos = storedTodos.filter(
-      (todo: Todo) => todo.userId === user?.id,
-    );
-    setTodos(userTodos);
-  };
-
-  const addTodo = () => {
-    if (!task.trim()) {
-      setError("Task cannot be empty");
-      return;
-    }
-
-    const newTodo: Todo = {
-      id: Date.now(),
-      task,
-      category,
-      completed: false,
-      userId: user!.id,
-    };
-
-    const updatedTodos = [...todos, newTodo];
-    setTodos(updatedTodos);
-
-    const allTodos = JSON.parse(localStorage.getItem("todos") || "[]");
-    allTodos.push(newTodo);
-    localStorage.setItem("todos", JSON.stringify(allTodos));
-
-    setTask("");
-    setError("");
-  };
-
-  const toggleCompletion = (id: number) => {
-    const updatedTodos = todos.map((todo) =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo,
-    );
-    setTodos(updatedTodos);
-
-    const allTodos = JSON.parse(localStorage.getItem("todos") || "[]");
-    const updatedAllTodos = allTodos.map((todo: Todo) =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo,
-    );
-    localStorage.setItem("todos", JSON.stringify(updatedAllTodos));
-  };
-
-  const deleteTodo = (id: number) => {
-    const updatedTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(updatedTodos);
-
-    const allTodos = JSON.parse(localStorage.getItem("todos") || "[]");
-    const updatedAllTodos = allTodos.filter((todo: Todo) => todo.id !== id);
-    localStorage.setItem("todos", JSON.stringify(updatedAllTodos));
-  };
-
-  const logout = () => {
-    localStorage.removeItem("currentUser");
-    setUser(null);
-    router.push("/auth/login");
-  };
-
   return (
     <ThemeProvider theme={darkGreenTheme}>
       <CssBaseline />
@@ -319,10 +249,10 @@ export default function Home() {
                 alignItems: "center",
               }}
             >
-              <Link href="/" passHref>
+              <Link href="/home" passHref>
                 <Button
                   sx={{
-                    color: isActive("/") ? "#f5f5f5" : "#ffffff",
+                    color: isActive("/home") ? "#f5f5f5" : "#ffffff",
                     position: "relative",
                     "&::after": {
                       content: '""',
@@ -330,7 +260,7 @@ export default function Home() {
                       bottom: 0,
                       left: 0,
                       height: "2px",
-                      width: isActive("/") ? "100%" : "0",
+                      width: isActive("/home") ? "100%" : "0",
                       backgroundColor: "#ffffff",
                       borderRadius: "10px",
                       transition: "width 0.3s",
@@ -457,144 +387,223 @@ export default function Home() {
           </Drawer>
         </AppBar>
 
-        {/* Content Area */}
-        <Container sx={{ mt: 4, flexGrow: 1 }}>
-          <Paper
-            elevation={4}
-            sx={{
-              p: 4,
-              borderRadius: 2,
-              boxShadow: 3,
-              transition: "all 0.3s ease",
-              backgroundColor: isDarkMode ? "#333" : "#fff",
-              color: isDarkMode ? "#fff" : "#000",
-            }}
-          >
-            <Typography variant="h4" align="center" gutterBottom>
-              {isAftenoon ? "Good Afternoon" : "Good Morning"}, {user?.username}
-              !
+        {/* Hero Section */}
+        <Box
+          className={animationClass}
+          sx={{
+            flexGrow: 1,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            padding: "50px 20px",
+            backgroundColor: isDarkMode ? "#222" : "#e8e8e8",
+            color: isDarkMode ? "#fff" : "#000",
+            transition: "all 0.3s ease",
+          }}
+        >
+          <Container>
+            <Typography variant="h2" gutterBottom sx={{ fontWeight: "bold" }}>
+              Welcome to the NextJS To-Do App
             </Typography>
-            {user && (
-              <Box textAlign="center" mb={2}>
-                <Typography variant="body1" style={{ marginBottom: "10px" }}>
-                  Here are your tasks:
-                </Typography>
-                <Button
-                  variant="contained"
-                  onClick={logout}
-                  sx={{
-                    mt: 1,
-                    backgroundColor: darkGreenTheme.palette.primary.main,
-                    color: "#fff",
-                  }}
-                >
-                  Logout
-                </Button>
-              </Box>
-            )}
-            <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              mb={3}
-            >
-              <TextField
-                label="New Task"
-                value={task}
-                onChange={(e) => setTask(e.target.value)}
-                variant="outlined"
-                fullWidth
+            <Typography variant="h6" gutterBottom>
+              Organize your tasks, increase your productivity, and manage your
+              to-dos effortlessly with our simple and intuitive app.
+            </Typography>
+            <Link href="/auth/register" passHref>
+              <Button
+                variant="contained"
                 sx={{
-                  mr: 2,
-                  "& .MuiInputBase-input": {
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
+                  backgroundColor: darkGreenTheme.palette.primary.main,
+                  color: "#fff",
+                  mt: 3,
+                  "&:hover": { backgroundColor: "#004d00" },
                 }}
-                InputLabelProps={{
-                  style: { color: isDarkMode ? "#fff" : "#000" },
+              >
+                Get Started
+              </Button>
+            </Link>
+          </Container>
+        </Box>
+
+        {/* Features Section */}
+        <Container className={animationClass} sx={{ py: 8 }}>
+          <Typography
+            variant="h4"
+            align="center"
+            gutterBottom
+            sx={{ fontWeight: "bold" }}
+          >
+            Why Choose Us?
+          </Typography>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={4}>
+              <Paper
+                elevation={4}
+                sx={{
+                  padding: 3,
+                  backgroundColor: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  textAlign: "center",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  transition: "all 0.3s ease",
                 }}
-                InputProps={{
-                  style: { color: isDarkMode ? "#fff" : "#000" },
+              >
+                <Typography variant="h6" gutterBottom>
+                  Easy to Use
+                </Typography>
+                <Typography variant="body2">
+                  Our app is designed with simplicity in mind. Easily manage
+                  your tasks with a clean and intuitive interface.
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper
+                elevation={4}
+                sx={{
+                  padding: 3,
+                  backgroundColor: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  textAlign: "center",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  transition: "all 0.3s ease",
                 }}
-              />
-              <FormControl variant="outlined" sx={{ mr: 2, minWidth: 150 }}>
-                <InputLabel style={{ color: isDarkMode ? "#fff" : "#000" }}>
-                  Category
-                </InputLabel>
-                <Select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  label="Category"
-                  sx={{
-                    color: isDarkMode ? "#fff" : "#000",
-                    backgroundColor: isDarkMode ? "#444" : "#fff",
-                    "& .MuiSvgIcon-root": {
-                      color: isDarkMode ? "#fff" : "#000",
-                    },
-                  }}
-                >
-                  <MenuItem value="General">General</MenuItem>
-                  <MenuItem value="Work">Work</MenuItem>
-                  <MenuItem value="Personal">Personal</MenuItem>
-                  <MenuItem value="Shopping">Shopping</MenuItem>
-                </Select>
-              </FormControl>
-              <IconButton color="primary" onClick={addTodo}>
-                <AddCircle fontSize="large" />
-              </IconButton>
-            </Box>
-            {error && (
-              <Typography color="error" align="center" sx={{ mb: 2 }}>
-                {error}
-              </Typography>
-            )}
-            <TransitionGroup>
-              {todos.map((todo) => (
-                <CSSTransition key={todo.id} timeout={500} classNames="todo">
-                  <Paper
-                    elevation={2}
-                    sx={{
-                      p: 2,
-                      mb: 1,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      boxShadow: 3,
-                      backgroundColor: isDarkMode ? "#444" : "#f9f9f9",
-                      color: isDarkMode ? "#fff" : "#000",
-                    }}
-                  >
-                    <Box display="flex" alignItems="center">
-                      <Checkbox
-                        checked={todo.completed}
-                        onChange={() => toggleCompletion(todo.id)}
-                      />
-                      <Typography
-                        variant="body1"
-                        style={{
-                          textDecoration: todo.completed
-                            ? "line-through"
-                            : "none",
-                        }}
-                      >
-                        [{todo.category}] {todo.task}
-                      </Typography>
-                    </Box>
-                    <IconButton
-                      color="error"
-                      onClick={() => deleteTodo(todo.id)}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </Paper>
-                </CSSTransition>
-              ))}
-            </TransitionGroup>
-          </Paper>
+              >
+                <Typography variant="h6" gutterBottom>
+                  Stay Organized
+                </Typography>
+                <Typography variant="body2">
+                  Keep track of your tasks, categorize them, and stay organized.
+                  Never miss an important task again.
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper
+                elevation={4}
+                sx={{
+                  padding: 3,
+                  backgroundColor: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  textAlign: "center",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  Dark Mode Support
+                </Typography>
+                <Typography variant="body2">
+                  Enjoy using the app in both light and dark modes. Switch
+                  between modes for a more comfortable experience.
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper
+                elevation={4}
+                sx={{
+                  padding: 3,
+                  backgroundColor: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  textAlign: "center",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  Cloud Sync
+                </Typography>
+                <Typography variant="body2">
+                  Access your tasks from anywhere, anytime. Your tasks are
+                  securely stored in the cloud for easy access. Tasks are also
+                  synced in real-time for seamless updates.
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper
+                elevation={4}
+                sx={{
+                  padding: 3,
+                  backgroundColor: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  textAlign: "center",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  Accessible Anywhere
+                </Typography>
+                <Typography variant="body2">
+                  Use our app on any device, including desktop, tablet, and
+                  mobile. Access your tasks on the go and stay productive
+                  wherever you are.
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper
+                elevation={4}
+                sx={{
+                  padding: 3,
+                  backgroundColor: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  textAlign: "center",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  Account Security
+                </Typography>
+                <Typography variant="body2">
+                  Your account is secure with us. We use the latest encryption
+                  technologies to protect your data, ensure your privacy, and
+                  keep your account (and to-do lists) safe.
+                </Typography>
+              </Paper>
+            </Grid>
+          </Grid>
         </Container>
+
+        {/* Call-to-Action Section */}
+        <Box
+          className={animationClass}
+          sx={{
+            textAlign: "center",
+            py: 4,
+            backgroundColor: isDarkMode ? "#444" : "#e8e8e8",
+            color: isDarkMode ? "#fff" : "#000",
+            transition: "all 0.3s ease",
+          }}
+        >
+          <Typography variant="h5" gutterBottom>
+            Ready to become more organized and productive?
+          </Typography>
+          <Link href="/auth/register" passHref>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: darkGreenTheme.palette.primary.main,
+                color: "#fff",
+                mt: 2,
+                transition: "all 0.3s ease",
+                "&:hover": { backgroundColor: "#004d00" },
+              }}
+            >
+              Start Your Journey
+            </Button>
+          </Link>
+        </Box>
 
         {/* Footer */}
         <Box
@@ -604,10 +613,12 @@ export default function Home() {
             py: 2,
             backgroundColor: darkGreenTheme.palette.primary.main,
             color: "#ffffff",
+            transition: "all 0.3s ease",
           }}
         >
           <Typography variant="body2">
-            &copy; {new Date().getFullYear()} ToDo App. All Rights Reserved.
+            &copy; {new Date().getFullYear()} NextJS ToDo App. All Rights
+            Reserved.
           </Typography>
         </Box>
       </div>

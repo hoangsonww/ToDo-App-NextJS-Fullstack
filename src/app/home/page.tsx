@@ -1,6 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import isEqual from "lodash/isEqual";
 import {
   AppBar,
   Toolbar,
@@ -10,28 +11,42 @@ import {
   Paper,
   Button,
   TextField,
-  InputAdornment,
+  Select,
+  MenuItem,
   Box,
+  Checkbox,
+  FormControl,
+  InputLabel,
   List,
   ListItem,
   ListItemButton,
   Drawer,
   ListItemText,
-  CircularProgress,
   ThemeProvider,
   createTheme,
   CssBaseline,
+  CircularProgress,
 } from "@mui/material";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Brightness4,
   Brightness7,
-  Visibility,
-  VisibilityOff,
-  Menu as MenuIcon,
+  Delete,
+  AddCircle,
   Close as CloseIcon,
+  Menu as MenuIcon,
 } from "@mui/icons-material";
-import Link from "next/link";
-import "../../page.css";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
+import "../page.css";
+
+interface Todo {
+  id: number;
+  task: string;
+  category: string;
+  completed: boolean;
+  userId: number;
+}
 
 const darkGreenTheme = createTheme({
   palette: {
@@ -51,26 +66,26 @@ const darkGreenTheme = createTheme({
   },
 });
 
-export default function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+export default function Home() {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [task, setTask] = useState("");
+  const [category, setCategory] = useState("General");
+  // eslint-disable-next-line
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const router = useRouter();
-  const pathname = usePathname();
-  const isActive = (path: string) => pathname === path;
   const [user, setUser] = useState<{ id: number; username: string } | null>(
     null,
   );
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isAfternoon, setIsAfternoon] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const isActive = (path: string) => pathname === path;
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const storedDarkMode = JSON.parse(
-      localStorage.getItem("darkMode") || "false",
-    );
-    setIsDarkMode(storedDarkMode);
-  }, []);
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    localStorage.setItem("darkMode", JSON.stringify(!isDarkMode));
+  };
 
   useEffect(() => {
     const storedUser = JSON.parse(
@@ -87,12 +102,6 @@ export default function Login() {
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
-  };
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !isDarkMode;
-    setIsDarkMode(newDarkMode);
-    localStorage.setItem("darkMode", JSON.stringify(newDarkMode));
   };
 
   const drawer = (
@@ -218,45 +227,146 @@ export default function Login() {
     </Box>
   );
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleLogin = async () => {
-    if (!username || !password) {
-      setError("Username and password are required");
-      return;
+  useEffect(() => {
+    const storedUser = JSON.parse(
+      localStorage.getItem("currentUser") || "null",
+    );
+    if (storedUser) {
+      setUser(storedUser);
+    } else {
+      router.push("/auth/login");
     }
+  }, [router]);
 
-    setIsLoading(true);
-    setError("");
+  useEffect(() => {
+    const currentUser = localStorage.getItem("currentUser");
+
+    if (!currentUser || currentUser === "null") {
+      router.push("/home");
+    }
+  }, [router]);
+
+  useEffect(() => {
+    if (user) {
+      fetchTodos(user.id);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const storedDarkMode = JSON.parse(
+      localStorage.getItem("darkMode") || "true",
+    );
+    setIsDarkMode(storedDarkMode);
+  }, []);
+
+  useEffect(() => {
+    const date = new Date();
+    const hours = date.getHours();
+    setIsAfternoon(hours >= 12 && hours < 18);
+  }, []);
+
+  const todosRef = useRef<Todo[]>([]);
+
+  const fetchTodos = async (userId: number, showLoading = false) => {
+    if (showLoading) setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
+      const response = await fetch(`/api/todos?userId=${userId}`);
       const data = await response.json();
 
-      if (response.ok) {
-        alert(data.message);
-        localStorage.setItem("currentUser", JSON.stringify(data.user));
-        setUser(data.user);
-        router.push("/home");
-      } else {
-        setError(data.error || "Invalid username or password");
+      // Update state only if data changes
+      if (!isEqual(data, todosRef.current)) {
+        todosRef.current = data; // Update ref
+        setTodos(data); // Trigger state update only when needed
       }
     } catch (err) {
-      console.error("Error during login:", err);
-      setError("Something went wrong. Please try again.");
+      console.error("Error fetching todos:", err);
     } finally {
-      setIsLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
+
+  const addTodo = async () => {
+    if (!task.trim()) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/todos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user!.id,
+          task,
+          category,
+          completed: false,
+        }),
+      });
+      if (response.ok) {
+        setTask("");
+        fetchTodos(user!.id); // Refresh todos
+      }
+    } catch (err) {
+      console.error("Error adding todo:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleCompletion = async (todoId: number) => {
+    const todo = todos.find((t) => t.id === todoId);
+    if (!todo) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/todos`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user!.id,
+          todoId,
+          completed: !todo.completed,
+        }),
+      });
+      if (response.ok) fetchTodos(user!.id); // Refresh todos
+    } catch (err) {
+      console.error("Error toggling completion:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteTodo = async (todoId: number) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/todos`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user!.id,
+          todoId,
+        }),
+      });
+      if (response.ok) fetchTodos(user!.id); // Refresh todos
+    } catch (err) {
+      console.error("Error deleting todo:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const storedUser = JSON.parse(
+      localStorage.getItem("currentUser") || "null",
+    );
+    if (storedUser) {
+      setUser(storedUser);
+      fetchTodos(storedUser.id, true); // Initial fetch with loading spinner
+
+      // Polling for updates
+      const interval = setInterval(() => fetchTodos(storedUser.id), 5000);
+      return () => clearInterval(interval);
+    } else {
+      router.push("/auth/login");
+    }
+  }, [router]);
 
   const logout = () => {
     localStorage.removeItem("currentUser");
@@ -431,119 +541,178 @@ export default function Login() {
           </Drawer>
         </AppBar>
 
-        {/* Login Form */}
-        <Container
-          sx={{
-            minHeight: "80vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        {/* Content Area */}
+        <Container sx={{ mt: 4, flexGrow: 1 }}>
           <Paper
             elevation={4}
             sx={{
-              padding: "30px",
+              p: 4,
               borderRadius: 2,
               boxShadow: 3,
-              width: "100%",
-              maxWidth: "400px",
+              transition: "all 0.3s ease",
               backgroundColor: isDarkMode ? "#333" : "#fff",
               color: isDarkMode ? "#fff" : "#000",
             }}
           >
-            <Typography variant="h4" align="center" gutterBottom>
-              Login
-            </Typography>
-            {error && (
-              <Typography color="error" align="center" sx={{ mb: 2 }}>
-                {error}
-              </Typography>
+            {loading ? (
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100%"
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              <>
+                <Typography
+                  variant="h4"
+                  align="center"
+                  gutterBottom
+                  style={{
+                    wordWrap: "break-word",
+                    overflowWrap: "break-word",
+                    maxWidth: "100%",
+                    textAlign: "center",
+                    display: "block",
+                  }}
+                >
+                  {new Date().getHours() >= 18
+                    ? "Good Evening"
+                    : isAfternoon
+                      ? "Good Afternoon"
+                      : "Good Morning"}
+                  , {user?.username}!
+                </Typography>
+                {user && (
+                  <Box textAlign="center" mb={2}>
+                    <Typography
+                      variant="body1"
+                      style={{ marginBottom: "10px" }}
+                    >
+                      Here are your tasks:
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      onClick={logout}
+                      sx={{
+                        mt: 1,
+                        backgroundColor: darkGreenTheme.palette.primary.main,
+                        color: "#fff",
+                        mb: 1,
+                      }}
+                    >
+                      Logout
+                    </Button>
+                  </Box>
+                )}
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  mb={3}
+                >
+                  <TextField
+                    label="New Task"
+                    value={task}
+                    onChange={(e) => setTask(e.target.value)}
+                    variant="outlined"
+                    fullWidth
+                    sx={{
+                      mr: 2,
+                      "& .MuiInputBase-input": {
+                        color: isDarkMode ? "#fff" : "#000",
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: isDarkMode ? "#fff" : "#000",
+                      },
+                    }}
+                    InputLabelProps={{
+                      style: { color: isDarkMode ? "#fff" : "#000" },
+                    }}
+                    InputProps={{
+                      style: { color: isDarkMode ? "#fff" : "#000" },
+                    }}
+                  />
+                  <FormControl variant="outlined" sx={{ mr: 2, minWidth: 150 }}>
+                    <InputLabel style={{ color: isDarkMode ? "#fff" : "#000" }}>
+                      Category
+                    </InputLabel>
+                    <Select
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      label="Category"
+                      sx={{
+                        color: isDarkMode ? "#fff" : "#000",
+                        backgroundColor: isDarkMode ? "#444" : "#fff",
+                        "& .MuiSvgIcon-root": {
+                          color: isDarkMode ? "#fff" : "#000",
+                        },
+                      }}
+                    >
+                      <MenuItem value="General">General</MenuItem>
+                      <MenuItem value="Work">Work</MenuItem>
+                      <MenuItem value="Personal">Personal</MenuItem>
+                      <MenuItem value="Shopping">Shopping</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <IconButton color="primary" onClick={addTodo}>
+                    <AddCircle fontSize="large" />
+                  </IconButton>
+                </Box>
+                {error && (
+                  <Typography color="error" align="center" sx={{ mb: 2 }}>
+                    {error}
+                  </Typography>
+                )}
+                <TransitionGroup>
+                  {todos.map((todo) => (
+                    <CSSTransition
+                      key={todo.id}
+                      timeout={500}
+                      classNames="todo"
+                    >
+                      <Paper
+                        elevation={2}
+                        sx={{
+                          p: 2,
+                          mb: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          boxShadow: 3,
+                          backgroundColor: isDarkMode ? "#444" : "#f9f9f9",
+                          color: isDarkMode ? "#fff" : "#000",
+                        }}
+                      >
+                        <Box display="flex" alignItems="center">
+                          <Checkbox
+                            checked={todo.completed}
+                            onChange={() => toggleCompletion(todo.id)}
+                          />
+                          <Typography
+                            variant="body1"
+                            style={{
+                              textDecoration: todo.completed
+                                ? "line-through"
+                                : "none",
+                            }}
+                          >
+                            [{todo.category}] {todo.task}
+                          </Typography>
+                        </Box>
+                        <IconButton
+                          color="error"
+                          onClick={() => deleteTodo(todo.id)}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Paper>
+                    </CSSTransition>
+                  ))}
+                </TransitionGroup>
+              </>
             )}
-            <Box mb={2}>
-              <TextField
-                label="Username"
-                variant="outlined"
-                fullWidth
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleLogin()}
-                sx={{ marginBottom: 2 }}
-                InputLabelProps={{
-                  style: { color: isDarkMode ? "#fff" : "#000" },
-                }}
-                InputProps={{
-                  style: { color: isDarkMode ? "#fff" : "#000" },
-                }}
-              />
-              <TextField
-                label="Password"
-                type={showPassword ? "text" : "password"}
-                variant="outlined"
-                fullWidth
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleLogin()}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={togglePasswordVisibility}>
-                        {showPassword ? (
-                          <VisibilityOff
-                            sx={{ color: isDarkMode ? "#fff" : "#000" }}
-                          />
-                        ) : (
-                          <Visibility
-                            sx={{ color: isDarkMode ? "#fff" : "#000" }}
-                          />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                  style: { color: isDarkMode ? "#fff" : "#000" },
-                }}
-                InputLabelProps={{
-                  style: { color: isDarkMode ? "#fff" : "#000" },
-                }}
-              />
-            </Box>
-            <Button
-              variant="contained"
-              fullWidth
-              onClick={handleLogin}
-              disabled={isLoading}
-              sx={{
-                backgroundColor: darkGreenTheme.palette.primary.main,
-                color: "#fff",
-                "&:hover": {
-                  backgroundColor: "#004d00",
-                },
-              }}
-            >
-              {isLoading ? (
-                <CircularProgress size={24} sx={{ color: "#fff" }} />
-              ) : (
-                "Login"
-              )}
-            </Button>
-            <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-              Don&#39;t have an account?{" "}
-              <a
-                href="/auth/register"
-                style={{ color: darkGreenTheme.palette.primary.main }}
-              >
-                Register
-              </a>
-            </Typography>
-            <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-              Forgot Password?{" "}
-              <a
-                href="/auth/forgot-password"
-                style={{ color: darkGreenTheme.palette.primary.main }}
-              >
-                Click here to reset
-              </a>
-            </Typography>
           </Paper>
         </Container>
 

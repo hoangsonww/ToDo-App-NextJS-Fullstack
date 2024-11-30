@@ -9,18 +9,6 @@ This project shows the power of Next.js and serves as a practical demonstration 
 - [🌟 **Features**](#-features)
 - [🚀 **Live Deployment**](#-live-deployment)
 - [🖼️ **UI Preview**](#-ui-preview)
-  - [**Landing Page**](#landing-page)
-    - [**Light Mode**](#light-mode)
-    - [**Dark Mode**](#dark-mode)
-  - [**Login Page**](#login-page)
-    - [**Light Mode**](#light-mode-1)
-    - [**Dark Mode**](#dark-mode-1)
-  - [**Register Page**](#register-page)
-    - [**Light Mode**](#light-mode-2)
-    - [**Dark Mode**](#dark-mode-2)
-  - [**Homepage (To-Do List)**](#homepage-to-do-list)
-    - [**Light Mode**](#light-mode-3)
-    - [**Dark Mode**](#dark-mode-3)
 - [📂 **File Structure**](#-file-structure)
 - [📋 **API Endpoints**](#-api-endpoints)
   - [**1. Prerequisites**](#1-prerequisites)
@@ -30,6 +18,7 @@ This project shows the power of Next.js and serves as a practical demonstration 
   - [**5. Run the Development Server**](#5-run-the-development-server)
   - [**6. Build for Production**](#6-build-for-production)
 - [🌐 **Using the App**](#-using-the-app)
+- [📝 **Swagger API Documentation**](#-swagger-api-documentation)
 - [💡 **Notes**](#-notes)
 - [🧪 **Testing**](#-testing)
   - [**Running Tests**](#running-tests)
@@ -44,6 +33,8 @@ This project shows the power of Next.js and serves as a practical demonstration 
 - Dark and Light mode
 - User-specific to-do lists with different categories
 - CRUD operations for to-do items
+- MongoDB database for data storage
+- WebSockets for real-time updates to To-Do items
 - Responsive design
 - Add, edit, delete, and complete tasks
 - Persistent storage using SQLite and in-memory storage
@@ -56,6 +47,8 @@ This project shows the power of Next.js and serves as a practical demonstration 
 ## 🚀 **Live Deployment**
 
 The application is deployed live on **Vercel**. You can access it at [https://todo-app-nextjs-stack.vercel.app/](https://todo-app-nextjs-stack.vercel.app/landing).
+
+The app features a landing page, authentication (login, register, and forgot password), a to-do list, and a Swagger API documentation page, as well as real-time to-do updates using WebSockets.
 
 ## 🖼️ **UI Preview**
 
@@ -115,6 +108,20 @@ The application is deployed live on **Vercel**. You can access it at [https://to
   <img src="images/home-dark.png" alt="Homepage in Dark Mode" width="100%" style="border-radius: 10px"/>
 </p>
 
+### **Forgot Password Page**
+
+#### **Light Mode**
+
+<p align="center">
+  <img src="images/forgot-password-bright.png" alt="Forgot Password Page" width="100%" style="border-radius: 10px"/>
+</p>
+
+#### **Dark Mode**
+
+<p align="center">
+  <img src="images/forgot-password-dark.png" alt="Forgot Password Page in Dark Mode" width="100%" style="border-radius: 10px"/>
+</p>
+
 ## 📂 **File Structure**
 
 Below is the comprehensive file structure for the project:
@@ -123,56 +130,94 @@ Below is the comprehensive file structure for the project:
 todo-app-fullstack-nextjs/
 │
 ├── public/
+│   ├── sitemap.xml
+│   ├── robots.txt
+│   ├── manifest.json
 │   ├── favicon.ico
-│   └── images/                  # Placeholder for UI images
+│   └── images/
 │
 ├── src/
 │   ├── app/
-│   │   ├── api/                 # Backend API endpoints
+│   │   ├── api/                     # Backend API endpoints
+│   │   │   ├── swagger.ts           # Swagger API documentation
+│   │   │   ├── auth/
+│   │   │   │   ├── login/
+│   │   │   │   │   └── route.ts     # Login route
+│   │   │   │   ├── register/
+│   │   │   │   │   └── route.ts     # Registration route
+│   │   │   │   ├── reset-password/
+│   │   │   │   │   └── route.ts     # Reset password route
+│   │   │   │   └── verify-email/
+│   │   │   │       └── route.ts     # Email verification route
 │   │   │   └── todos/
-│   │   │       ├── route.ts     # Full CRUD operations for todos
+│   │   │       └── route.ts         # Full CRUD operations for todos
 │   │   │
-│   │   ├── auth/                # Authentication pages
+│   │   ├── auth/                    # Authentication pages
+│   │   │   ├── reset-password/
+│   │   │   │   └── page.tsx         # Reset password page
 │   │   │   ├── login/
-│   │   │   │   └── page.tsx     # Login page
+│   │   │   │   └── page.tsx         # Login page
 │   │   │   └── register/
-│   │   │       └── page.tsx     # Registration page
+│   │   │       └── page.tsx         # Registration page
 │   │   │
 │   │   ├── landing/
-│   │   │   └── page.tsx         # Landing page
+│   │   │   └── page.tsx             # Landing page
 │   │   │
-│   │   ├── layout.tsx           # Layout for the entire app
-│   │   ├── page.tsx             # Homepage with conditional redirect logic
-│   │   └── globals.css          # Global CSS styles
+│   │   ├── swagger/
+│   │   │   └── page.tsx             # Swagger API documentation page
+│   │   │
+│   │   ├── layout.tsx               # Layout for the entire app
+│   │   ├── page.tsx                 # Homepage with conditional redirect logic
+│   │   ├── page.css                 # Homepage styles
+│   │   ├── page.module.css          # Homepage module styles
+│   │   └── globals.css              # Global CSS styles
 │   │
-│   ├── components/              # Reusable components
-│   │   ├── Navbar.tsx           # Navbar component
-│   │   └── Footer.tsx           # Footer component
+│   ├── fonts/                       # Custom fonts
 │   │
-│   ├── styles/                  # Additional styles if needed
-│   │   └── page.css
-│   │
-│   └── utils/                   # Utility functions (e.g., authentication helpers)
-│       └── auth.ts
+│   └── types/                       # TypeScript types
+│       └── swagger-ui-react.d.ts    # Swagger UI types
 │
-├── .env.local                   # Environment variables (if using)
-├── next.config.js               # Next.js configuration
-├── package.json                 # Project dependencies and scripts
-└── README.md                    # This README file
+├── nginx/                           # Nginx configuration
+│   ├── default.conf                 # Default Nginx configuration
+│   └── nginx.conf                   # Nginx configuration
+│
+├── kubernetes/                      # Kubernetes configuration
+│   ├── frontend-deployment.yaml     # Frontend deployment configuration
+│   ├── frontend-service.yaml        # Frontend service configuration
+│   ├── backend-deployment.yaml      # Backend deployment configuration
+│   ├── backend-service.yaml         # Backend service configuration
+│   └── configmap.yaml               # ConfigMap for environment variables
+│
+├── .env.local                       # Environment variables (if using)
+├── next.config.js                   # Next.js configuration
+├── Dockerfile                       # Docker configuration
+├── next.config.js                   # Next.js configuration
+├── package-lock.json                # Locked versions of dependencies
+├── package.json                     # Project dependencies and scripts
+├── tsconfig.json                    # TypeScript configuration
+├── Jenkinsfile                      # Jenkins CI/CD pipeline
+├── .gitignore                       # Files and directories to ignore
+├── .eslintrc.json                   # ESLint configuration
+├── manage_app.sh                    # Script to manage the app
+├── LICENSE                          # Project license
+└── README.md                        # This README file
 ```
 
 ## 📋 **API Endpoints**
 
 Here's a table listing all the API endpoints provided by this application:
 
-| HTTP Method | Endpoint             | Description                       |
-| ----------- | -------------------- | --------------------------------- |
-| `POST`      | `/api/auth/login`    | Log in with username and password |
-| `POST`      | `/api/auth/register` | Register a new user               |
-| `GET`       | `/api/todos`         | Fetch all todos for a user        |
-| `POST`      | `/api/todos`         | Create a new to-do item           |
-| `PUT`       | `/api/todos`         | Update a to-do item               |
-| `DELETE`    | `/api/todos`         | Delete a to-do item               |
+| HTTP Method | Endpoint                   | Description                       |
+| ----------- | -------------------------- | --------------------------------- |
+| `POST`      | `/api/auth/login`          | Log in with username and password |
+| `POST`      | `/api/auth/register`       | Register a new user               |
+| `GET`       | `/api/todos`               | Fetch all todos for a user        |
+| `POST`      | `/api/todos`               | Create a new to-do item           |
+| `PUT`       | `/api/todos`               | Update a to-do item               |
+| `DELETE`    | `/api/todos`               | Delete a to-do item               |
+| `PATCH`     | `/api/todos`               | Mark a to-do item as completed    |
+| `POST`      | `/api/auth/reset-password` | Reset user password               |
+| `POST`      | `/api/auth/verify-email`   | Verify user email                 |
 
 ## 🛠️ **Getting Started**
 
@@ -263,6 +308,18 @@ The production build will be served at `http://localhost:3000`.
 - Login: Access your account through the `/auth/login` page.
 
 3. **Manage To-Dos**: Access the main to-do list page (`/`) where you can add, edit, and delete to-dos, as well as toggle dark mode.
+
+Alternatively, you can directly access the deployed application at [https://todo-app-nextjs-stack.vercel.app/](https://todo-app-nextjs-stack.vercel.app/).
+
+## 📝 **Swagger API Documentation**
+
+The application includes a Swagger API documentation page that lists all the available API endpoints and their descriptions. You can access the Swagger documentation at `/swagger`.
+
+Here is what it looks like:
+
+<p align="center">
+  <img src="images/swagger.png" alt="Swagger API Documentation" width="100%" style="border-radius: 10px"/>
+</p>
 
 ## 💡 **Notes**
 

@@ -128,13 +128,31 @@ export default function ForgotPassword() {
         <CloseIcon />
       </IconButton>
       <List>
-        <ListItem disablePadding>
-          <ListItemButton component="a" href="/" onClick={handleDrawerToggle}>
+        <ListItem
+          disablePadding
+          sx={{
+            backgroundColor: isActive("/home")
+              ? "rgba(0, 128, 0, 0.3)"
+              : "inherit",
+          }}
+        >
+          <ListItemButton
+            component="a"
+            href="/home"
+            onClick={handleDrawerToggle}
+          >
             <ListItemText primary="Home" />
           </ListItemButton>
         </ListItem>
         {user ? (
-          <ListItem disablePadding>
+          <ListItem
+            disablePadding
+            sx={{
+              backgroundColor: isActive("/auth/login")
+                ? "rgba(0, 128, 0, 0.3)"
+                : "inherit",
+            }}
+          >
             <ListItemButton
               onClick={() => {
                 logout();
@@ -146,7 +164,14 @@ export default function ForgotPassword() {
           </ListItem>
         ) : (
           <>
-            <ListItem disablePadding>
+            <ListItem
+              disablePadding
+              sx={{
+                backgroundColor: isActive("/auth/login")
+                  ? "rgba(0, 128, 0, 0.3)"
+                  : "inherit",
+              }}
+            >
               <ListItemButton
                 component="a"
                 href="/auth/login"
@@ -157,7 +182,14 @@ export default function ForgotPassword() {
             </ListItem>
           </>
         )}
-        <ListItem disablePadding>
+        <ListItem
+          disablePadding
+          sx={{
+            backgroundColor: isActive("/auth/register")
+              ? "rgba(0, 128, 0, 0.3)"
+              : "inherit",
+          }}
+        >
           <ListItemButton
             component="a"
             href="/auth/register"
@@ -283,10 +315,10 @@ export default function ForgotPassword() {
                 alignItems: "center",
               }}
             >
-              <Link href="/" passHref>
+              <Link href="/home" passHref>
                 <Button
                   sx={{
-                    color: isActive("/") ? "#f5f5f5" : "#ffffff",
+                    color: isActive("/home") ? "#f5f5f5" : "#ffffff",
                     position: "relative",
                     "&::after": {
                       content: '""',
@@ -294,7 +326,7 @@ export default function ForgotPassword() {
                       bottom: 0,
                       left: 0,
                       height: "2px",
-                      width: isActive("/") ? "100%" : "0",
+                      width: isActive("/home") ? "100%" : "0",
                       backgroundColor: "#ffffff",
                       borderRadius: "10px",
                       transition: "width 0.3s",
@@ -458,6 +490,9 @@ export default function ForgotPassword() {
                   fullWidth
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && handleVerifyUsername()
+                  }
                   sx={{ marginBottom: 2 }}
                   InputLabelProps={{
                     style: { color: isDarkMode ? "#fff" : "#000" },
@@ -492,6 +527,7 @@ export default function ForgotPassword() {
                   fullWidth
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleResetPassword()}
                   sx={{ marginBottom: 2 }}
                   InputProps={{
                     endAdornment: (
@@ -522,6 +558,7 @@ export default function ForgotPassword() {
                   fullWidth
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleResetPassword()}
                   sx={{ marginBottom: 2 }}
                   InputProps={{
                     endAdornment: (
@@ -577,7 +614,8 @@ export default function ForgotPassword() {
           }}
         >
           <Typography variant="body2">
-            &copy; {new Date().getFullYear()} ToDo App. All Rights Reserved.
+            &copy; {new Date().getFullYear()} NextJS ToDo App. All Rights
+            Reserved.
           </Typography>
         </Box>
       </div>

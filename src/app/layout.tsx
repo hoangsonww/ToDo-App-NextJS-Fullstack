@@ -36,7 +36,7 @@ export default function RootLayout({
           content="A simple todo app built with Next.js"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>The Next.js ToDo App</title>
+        <title>The Next.js ToDo App - Stay Organized with ToDo Lists</title>
         <meta name="author" content="Son Nguyen" />
         <meta name="robots" content="index, follow" />
         <meta charSet="utf-8" />

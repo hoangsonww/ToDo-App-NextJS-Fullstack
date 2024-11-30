@@ -114,13 +114,31 @@ export default function LandingPage() {
         <CloseIcon />
       </IconButton>
       <List>
-        <ListItem disablePadding>
-          <ListItemButton component="a" href="/" onClick={handleDrawerToggle}>
+        <ListItem
+          disablePadding
+          sx={{
+            backgroundColor: isActive("/home")
+              ? "rgba(0, 128, 0, 0.3)"
+              : "inherit",
+          }}
+        >
+          <ListItemButton
+            component="a"
+            href="/home"
+            onClick={handleDrawerToggle}
+          >
             <ListItemText primary="Home" />
           </ListItemButton>
         </ListItem>
         {user ? (
-          <ListItem disablePadding>
+          <ListItem
+            disablePadding
+            sx={{
+              backgroundColor: isActive("/auth/login")
+                ? "rgba(0, 128, 0, 0.3)"
+                : "inherit",
+            }}
+          >
             <ListItemButton
               onClick={() => {
                 logout();
@@ -132,7 +150,14 @@ export default function LandingPage() {
           </ListItem>
         ) : (
           <>
-            <ListItem disablePadding>
+            <ListItem
+              disablePadding
+              sx={{
+                backgroundColor: isActive("/auth/login")
+                  ? "rgba(0, 128, 0, 0.3)"
+                  : "inherit",
+              }}
+            >
               <ListItemButton
                 component="a"
                 href="/auth/login"
@@ -143,7 +168,14 @@ export default function LandingPage() {
             </ListItem>
           </>
         )}
-        <ListItem disablePadding>
+        <ListItem
+          disablePadding
+          sx={{
+            backgroundColor: isActive("/auth/register")
+              ? "rgba(0, 128, 0, 0.3)"
+              : "inherit",
+          }}
+        >
           <ListItemButton
             component="a"
             href="/auth/register"
@@ -217,10 +249,10 @@ export default function LandingPage() {
                 alignItems: "center",
               }}
             >
-              <Link href="/" passHref>
+              <Link href="/home" passHref>
                 <Button
                   sx={{
-                    color: isActive("/") ? "#f5f5f5" : "#ffffff",
+                    color: isActive("/home") ? "#f5f5f5" : "#ffffff",
                     position: "relative",
                     "&::after": {
                       content: '""',
@@ -228,7 +260,7 @@ export default function LandingPage() {
                       bottom: 0,
                       left: 0,
                       height: "2px",
-                      width: isActive("/") ? "100%" : "0",
+                      width: isActive("/home") ? "100%" : "0",
                       backgroundColor: "#ffffff",
                       borderRadius: "10px",
                       transition: "width 0.3s",
@@ -365,7 +397,7 @@ export default function LandingPage() {
             alignItems: "center",
             textAlign: "center",
             padding: "50px 20px",
-            backgroundColor: isDarkMode ? "#222" : "#f9f9f9",
+            backgroundColor: isDarkMode ? "#222" : "#e8e8e8",
             color: isDarkMode ? "#fff" : "#000",
             transition: "all 0.3s ease",
           }}
@@ -471,6 +503,75 @@ export default function LandingPage() {
                 </Typography>
               </Paper>
             </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper
+                elevation={4}
+                sx={{
+                  padding: 3,
+                  backgroundColor: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  textAlign: "center",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  Cloud Sync
+                </Typography>
+                <Typography variant="body2">
+                  Access your tasks from anywhere, anytime. Your tasks are
+                  securely stored in the cloud for easy access. Tasks are also
+                  synced in real-time for seamless updates.
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper
+                elevation={4}
+                sx={{
+                  padding: 3,
+                  backgroundColor: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  textAlign: "center",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  Accessible Anywhere
+                </Typography>
+                <Typography variant="body2">
+                  Use our app on any device, including desktop, tablet, and
+                  mobile. Access your tasks on the go and stay productive
+                  wherever you are.
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper
+                elevation={4}
+                sx={{
+                  padding: 3,
+                  backgroundColor: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#000",
+                  textAlign: "center",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  Account Security
+                </Typography>
+                <Typography variant="body2">
+                  Your account is secure with us. We use the latest encryption
+                  technologies to protect your data, ensure your privacy, and
+                  keep your account (and to-do lists) safe.
+                </Typography>
+              </Paper>
+            </Grid>
           </Grid>
         </Container>
 
@@ -516,7 +617,8 @@ export default function LandingPage() {
           }}
         >
           <Typography variant="body2">
-            &copy; {new Date().getFullYear()} ToDo App. All Rights Reserved.
+            &copy; {new Date().getFullYear()} NextJS ToDo App. All Rights
+            Reserved.
           </Typography>
         </Box>
       </div>
