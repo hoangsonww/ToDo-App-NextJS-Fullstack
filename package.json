@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier --write \"**/*.{js,ts,tsx,json,css,html,md}\""
+    "format": "prettier --write \"**/*.{js,ts,tsx,json,css,html,md}\"",
+
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",
