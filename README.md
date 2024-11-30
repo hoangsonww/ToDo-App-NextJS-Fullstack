@@ -7,6 +7,7 @@ This project shows the power of Next.js and serves as a practical demonstration 
 ## Table of Contents
 
 - [🌟 **Features**](#-features)
+- [🚀 **Live Deployment**](#-live-deployment)
 - [🖼️ **UI Preview**](#-ui-preview)
   - [**Landing Page**](#landing-page)
     - [**Light Mode**](#light-mode)
@@ -32,7 +33,6 @@ This project shows the power of Next.js and serves as a practical demonstration 
 - [💡 **Notes**](#-notes)
 - [🧪 **Testing**](#-testing)
   - [**Running Tests**](#running-tests)
-- [🚀 **Live Deployment**](#-live-deployment)
 - [🐳 **Containerization**](#-containerization)
 - [🔧 **Contributing**](#-contributing)
 - [📝 **License**](#-license)
@@ -52,6 +52,10 @@ This project shows the power of Next.js and serves as a practical demonstration 
 - Basic testing for API endpoints and utility functions
 - Easy-to-understand file structure and codebase
 - Customizable with additional features and improvements
+
+## 🚀 **Live Deployment**
+
+The application is deployed live on **Vercel**. You can access it at [https://todo-app-nextjs-stack.vercel.app/](https://todo-app-nextjs-stack.vercel.app/landing).
 
 ## 🖼️ **UI Preview**
 
@@ -162,7 +166,7 @@ todo-app-fullstack-nextjs/
 Here's a table listing all the API endpoints provided by this application:
 
 | HTTP Method | Endpoint             | Description                       |
-| ----------- | -------------------- | --------------------------------- |
+|-------------|----------------------|-----------------------------------|
 | `POST`      | `/api/auth/login`    | Log in with username and password |
 | `POST`      | `/api/auth/register` | Register a new user               |
 | `GET`       | `/api/todos`         | Fetch all todos for a user        |
@@ -282,10 +286,6 @@ yarn test
 ```
 
 The tests will run and display the results in the terminal.
-
-## 🚀 **Live Deployment**
-
-The application is deployed live on **Vercel**. You can access it at [https://todo-app-nextjs-stack.vercel.app/](https://todo-app-nextjs-stack.vercel.app/landing).
 
 ## 🐳 **Containerization**
 

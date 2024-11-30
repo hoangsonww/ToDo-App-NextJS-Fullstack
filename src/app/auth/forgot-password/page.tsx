@@ -1,28 +1,38 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
+import React, { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   AppBar,
   Toolbar,
   Typography,
   IconButton,
   Container,
-  Box,
-  Button,
-  ThemeProvider,
-  createTheme,
-  CssBaseline,
   Paper,
-  Grid,
+  Button,
+  TextField,
+  InputAdornment,
+  Box,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
   Drawer,
+  CircularProgress,
+  ThemeProvider,
+  createTheme,
+  CssBaseline,
 } from "@mui/material";
-import "../page.css";
-import {Brightness4, Brightness7, Close as CloseIcon, Menu as MenuIcon} from "@mui/icons-material";
+import {
+  Brightness4,
+  Brightness7,
+  Visibility,
+  VisibilityOff,
+  Menu as MenuIcon,
+  Close as CloseIcon,
+} from "@mui/icons-material";
 import Link from "next/link";
-import {usePathname, useRouter} from "next/navigation";
+import "../../page.css";
 
 const darkGreenTheme = createTheme({
   palette: {
@@ -42,26 +52,27 @@ const darkGreenTheme = createTheme({
   },
 });
 
-export default function LandingPage() {
+export default function ForgotPassword() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [step, setStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [animationClass, setAnimationClass] = useState("");
-  const [user, setUser] = useState<{ id: number; username: string } | null>(
-    null,
-  );
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const router = useRouter();
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
+  const [user, setUser] = useState<{ id: number; username: string } | null>(null);
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    localStorage.setItem("darkMode", JSON.stringify(!isDarkMode));
-  };
-
-  const logout = () => {
-    localStorage.removeItem("currentUser");
-    setUser(null);
-    router.push("/auth/login");
-  };
+  useEffect(() => {
+    const storedDarkMode = JSON.parse(localStorage.getItem("darkMode") || "false");
+    setIsDarkMode(storedDarkMode);
+  }, []);
 
   useEffect(() => {
     const storedUser = JSON.parse(
@@ -74,24 +85,28 @@ export default function LandingPage() {
     }
   }, [router]);
 
-  useEffect(() => {
-    const prefersDarkMode = JSON.parse(
-      localStorage.getItem("darkMode") || "true",
-    );
-    setIsDarkMode(prefersDarkMode);
-
-    // Add the animation class after component mounts
-    const timer = setTimeout(() => {
-      setAnimationClass("animated");
-    }, 100); // Small delay for the effect
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const [mobileOpen, setMobileOpen] = useState(false);
-
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    localStorage.setItem("darkMode", JSON.stringify(newDarkMode));
+  };
+
+  const logout = () => {
+    localStorage.removeItem("currentUser");
+    setUser(null);
+    router.push("/auth/login");
   };
 
   const drawer = (
@@ -165,6 +180,58 @@ export default function LandingPage() {
       </List>
     </Box>
   );
+
+  const handleVerifyUsername = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/verify-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username }), // Send username in the request
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setStep(2); // Move to reset password step
+        setError("");
+      } else {
+        setError(data.error || "Username verification failed.");
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, newPassword: password }),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Password reset successful!");
+        router.push("/auth/login");
+      } else {
+        setError(data.error || "Password reset failed.");
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <ThemeProvider theme={darkGreenTheme}>
@@ -333,154 +400,140 @@ export default function LandingPage() {
           </Drawer>
         </AppBar>
 
-        {/* Hero Section */}
-        <Box
-          className={animationClass}
+        {/* Forgot Password Form */}
+        <Container
           sx={{
-            flexGrow: 1,
+            minHeight: "80vh",
             display: "flex",
-            justifyContent: "center",
             alignItems: "center",
-            textAlign: "center",
-            padding: "50px 20px",
-            backgroundColor: isDarkMode ? "#222" : "#f9f9f9",
-            color: isDarkMode ? "#fff" : "#000",
-            transition: "all 0.3s ease",
+            justifyContent: "center",
           }}
         >
-          <Container>
-            <Typography variant="h2" gutterBottom sx={{ fontWeight: "bold" }}>
-              Welcome to the NextJS To-Do App
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              Organize your tasks, increase your productivity, and manage your
-              to-dos effortlessly with our simple and intuitive app.
-            </Typography>
-            <Link href="/auth/register" passHref>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: darkGreenTheme.palette.primary.main,
-                  color: "#fff",
-                  mt: 3,
-                  "&:hover": { backgroundColor: "#004d00" },
-                }}
-              >
-                Get Started
-              </Button>
-            </Link>
-          </Container>
-        </Box>
-
-        {/* Features Section */}
-        <Container className={animationClass} sx={{ py: 8 }}>
-          <Typography
-            variant="h4"
-            align="center"
-            gutterBottom
-            sx={{ fontWeight: "bold" }}
+          <Paper
+            elevation={4}
+            sx={{
+              padding: "30px",
+              borderRadius: 2,
+              boxShadow: 3,
+              width: "100%",
+              maxWidth: "400px",
+              backgroundColor: isDarkMode ? "#333" : "#fff",
+              color: isDarkMode ? "#fff" : "#000",
+            }}
           >
-            Why Choose Us?
-          </Typography>
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={4}>
-              <Paper
-                elevation={4}
-                sx={{
-                  padding: 3,
-                  backgroundColor: isDarkMode ? "#333" : "#fff",
-                  color: isDarkMode ? "#fff" : "#000",
-                  textAlign: "center",
-                  borderRadius: 2,
-                  boxShadow: 3,
-                  transition: "all 0.3s ease",
-                }}
-              >
-                <Typography variant="h6" gutterBottom>
-                  Easy to Use
-                </Typography>
-                <Typography variant="body2">
-                  Our app is designed with simplicity in mind. Easily manage
-                  your tasks with a clean and intuitive interface.
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Paper
-                elevation={4}
-                sx={{
-                  padding: 3,
-                  backgroundColor: isDarkMode ? "#333" : "#fff",
-                  color: isDarkMode ? "#fff" : "#000",
-                  textAlign: "center",
-                  borderRadius: 2,
-                  boxShadow: 3,
-                  transition: "all 0.3s ease",
-                }}
-              >
-                <Typography variant="h6" gutterBottom>
-                  Stay Organized
-                </Typography>
-                <Typography variant="body2">
-                  Keep track of your tasks, categorize them, and stay organized.
-                  Never miss an important task again.
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Paper
-                elevation={4}
-                sx={{
-                  padding: 3,
-                  backgroundColor: isDarkMode ? "#333" : "#fff",
-                  color: isDarkMode ? "#fff" : "#000",
-                  textAlign: "center",
-                  borderRadius: 2,
-                  boxShadow: 3,
-                  transition: "all 0.3s ease",
-                }}
-              >
-                <Typography variant="h6" gutterBottom>
-                  Dark Mode Support
-                </Typography>
-                <Typography variant="body2">
-                  Enjoy using the app in both light and dark modes. Switch
-                  between modes for a more comfortable experience.
-                </Typography>
-              </Paper>
-            </Grid>
-          </Grid>
+            <Typography variant="h4" align="center" gutterBottom>
+              {step === 1 ? "Verify Username" : "Reset Password"}
+            </Typography>
+            {error && (
+              <Typography color="error" align="center" sx={{ mb: 2 }}>
+                {error}
+              </Typography>
+            )}
+            {step === 1 ? (
+              <Box>
+                <TextField
+                  label="Username"
+                  variant="outlined"
+                  fullWidth
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  sx={{ marginBottom: 2 }}
+                  InputLabelProps={{
+                    style: { color: isDarkMode ? "#fff" : "#000" },
+                  }}
+                  InputProps={{
+                    style: { color: isDarkMode ? "#fff" : "#000" },
+                  }}
+                />
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleVerifyUsername}
+                  disabled={isLoading}
+                  sx={{
+                    backgroundColor: darkGreenTheme.palette.primary.main,
+                    color: "#fff",
+                  }}
+                >
+                  {isLoading ? (
+                    <CircularProgress size={24} sx={{ color: "#fff" }} />
+                  ) : (
+                    "Verify Username"
+                  )}
+                </Button>
+              </Box>
+            ) : (
+              <Box>
+                <TextField
+                  label="New Password"
+                  type={showPassword ? "text" : "password"}
+                  variant="outlined"
+                  fullWidth
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  sx={{ marginBottom: 2 }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={togglePasswordVisibility}>
+                          {showPassword ?
+                            <VisibilityOff sx={{ color: isDarkMode ? "#fff" : "#000" }}/> :
+                            <Visibility sx={{ color: isDarkMode ? "#fff" : "#000" }}/>
+                          }
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                    style: { color: isDarkMode ? "#fff" : "#000" },
+                  }}
+                  InputLabelProps={{
+                    style: { color: isDarkMode ? "#fff" : "#000" },
+                  }}
+                />
+                <TextField
+                  label="Confirm Password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  variant="outlined"
+                  fullWidth
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  sx={{ marginBottom: 2 }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={toggleConfirmPasswordVisibility}>
+                          {showConfirmPassword ?
+                            <VisibilityOff sx={{ color: isDarkMode ? "#fff" : "#000" }}/> :
+                            <Visibility sx={{ color: isDarkMode ? "#fff" : "#000" }}/>
+                          }
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                    style: { color: isDarkMode ? "#fff" : "#000" },
+                  }}
+                  InputLabelProps={{
+                    style: { color: isDarkMode ? "#fff" : "#000" },
+                  }}
+                />
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleResetPassword}
+                  disabled={isLoading}
+                  sx={{
+                    backgroundColor: darkGreenTheme.palette.primary.main,
+                    color: "#fff",
+                  }}
+                >
+                  {isLoading ? (
+                    <CircularProgress size={24} sx={{ color: "#fff" }} />
+                  ) : (
+                    "Reset Password"
+                  )}
+                </Button>
+              </Box>
+            )}
+          </Paper>
         </Container>
-
-        {/* Call-to-Action Section */}
-        <Box
-          className={animationClass}
-          sx={{
-            textAlign: "center",
-            py: 4,
-            backgroundColor: isDarkMode ? "#444" : "#e8e8e8",
-            color: isDarkMode ? "#fff" : "#000",
-            transition: "all 0.3s ease",
-          }}
-        >
-          <Typography variant="h5" gutterBottom>
-            Ready to become more organized and productive?
-          </Typography>
-          <Link href="/auth/register" passHref>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: darkGreenTheme.palette.primary.main,
-                color: "#fff",
-                mt: 2,
-                transition: "all 0.3s ease",
-                "&:hover": { backgroundColor: "#004d00" },
-              }}
-            >
-              Start Your Journey
-            </Button>
-          </Link>
-        </Box>
 
         {/* Footer */}
         <Box
@@ -490,7 +543,6 @@ export default function LandingPage() {
             py: 2,
             backgroundColor: darkGreenTheme.palette.primary.main,
             color: "#ffffff",
-            transition: "all 0.3s ease",
           }}
         >
           <Typography variant="body2">
