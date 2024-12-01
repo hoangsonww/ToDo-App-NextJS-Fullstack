@@ -589,6 +589,10 @@ export default function LandingPage() {
           <Typography variant="h5" gutterBottom>
             Ready to become more organized and productive?
           </Typography>
+          <Typography variant="body2" gutterBottom>
+            Sign up now and start managing your tasks with ease. Get started for
+            free!
+          </Typography>
           <Link href="/auth/register" passHref>
             <Button
               variant="contained"
@@ -601,6 +605,40 @@ export default function LandingPage() {
               }}
             >
               Start Your Journey
+            </Button>
+          </Link>
+        </Box>
+
+        {/* Documentation Section */}
+        <Box
+          className={animationClass}
+          sx={{
+            textAlign: "center",
+            py: 4,
+            backgroundColor: isDarkMode ? "#333" : "#f5f5f5",
+            color: isDarkMode ? "#fff" : "#000",
+            transition: "all 0.3s ease",
+          }}
+        >
+          <Typography variant="h5" gutterBottom>
+              Explore the App&apos;s Documentation
+          </Typography>
+          <Typography variant="body2" gutterBottom>
+            Visit the app&apos;s source code repository and view the API
+            documentation to get to know the app even better!
+          </Typography>
+          <Link href="https://github.com/hoangsonww/ToDo-App-NextJS-Fullstack" passHref>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: darkGreenTheme.palette.primary.main,
+                color: "#fff",
+                mt: 2,
+                transition: "all 0.3s ease",
+                "&:hover": { backgroundColor: "#004d00" },
+              }}
+            >
+              View Documentation
             </Button>
           </Link>
         </Box>
