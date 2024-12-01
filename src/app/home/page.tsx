@@ -654,6 +654,20 @@ export default function Home() {
                       <MenuItem value="Work">Work</MenuItem>
                       <MenuItem value="Personal">Personal</MenuItem>
                       <MenuItem value="Shopping">Shopping</MenuItem>
+                      <MenuItem value="Education">Education</MenuItem>
+                      <MenuItem value="Appointment">Appointment</MenuItem>
+                      <MenuItem value="Fitness">Fitness</MenuItem>
+                      <MenuItem value="Health">Health</MenuItem>
+                      <MenuItem value="Travel">Travel</MenuItem>
+                      <MenuItem value="Finance">Finance</MenuItem>
+                      <MenuItem value="Entertainment">Entertainment</MenuItem>
+                      <MenuItem value="Hobbies">Hobbies</MenuItem>
+                      <MenuItem value="Family">Family</MenuItem>
+                      <MenuItem value="Social">Social</MenuItem>
+                      <MenuItem value="Chores">Chores</MenuItem>
+                      <MenuItem value="Goals">Goals</MenuItem>
+                      <MenuItem value="Urgent">Urgent</MenuItem>
+                      <MenuItem value="Miscellaneous">Miscellaneous</MenuItem>
                     </Select>
                   </FormControl>
                   <IconButton color="primary" onClick={addTodo}>
