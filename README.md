@@ -19,6 +19,8 @@ This project shows the power of **Next.js** and serves as a practical demonstrat
   - [**6. Build for Production**](#6-build-for-production)
 - [🌐 **Using the App**](#-using-the-app)
 - [📝 **Swagger API Documentation**](#-swagger-api-documentation)
+- [📝 **OpenAPI Specification**](#-openapi-specification)
+  - [Using the `openapi.yaml` File](#using-the-openapiyaml-file)
 - [💡 **Notes**](#-notes)
 - [🧪 **Testing**](#-testing)
   - [**Running Tests**](#running-tests)
@@ -200,6 +202,7 @@ todo-app-fullstack-nextjs/
 ├── .gitignore                       # Files and directories to ignore
 ├── .eslintrc.json                   # ESLint configuration
 ├── manage_app.sh                    # Script to manage the app
+├── openapi.yaml                     # OpenAPI Specification
 ├── LICENSE                          # Project license
 └── README.md                        # This README file
 ```
@@ -209,7 +212,7 @@ todo-app-fullstack-nextjs/
 Here's a table listing all the API endpoints provided by this application:
 
 | HTTP Method | Endpoint                   | Description                       |
-| ----------- | -------------------------- | --------------------------------- |
+|-------------|----------------------------|-----------------------------------|
 | `POST`      | `/api/auth/login`          | Log in with username and password |
 | `POST`      | `/api/auth/register`       | Register a new user               |
 | `GET`       | `/api/todos`               | Fetch all todos for a user        |
@@ -321,6 +324,56 @@ Here is what it looks like:
 <p align="center">
   <img src="images/swagger.png" alt="Swagger API Documentation" width="100%" style="border-radius: 10px"/>
 </p>
+
+## 📝 **OpenAPI Specification**
+
+### Using the `openapi.yaml` File
+
+1. **View the API Documentation**
+- Open [Swagger Editor](https://editor.swagger.io/).
+- Upload the `openapi.yaml` file or paste its content.
+- Visualize and interact with the API documentation.
+
+2. **Test the API**
+- Import `openapi.yaml` into [Postman](https://www.postman.com/):
+  - Open Postman → Import → Select `openapi.yaml`.
+  - Test the API endpoints directly from Postman.
+- Or use [Swagger UI](https://swagger.io/tools/swagger-ui/):
+  - Provide the file URL or upload it to view and test endpoints.
+
+3. **Generate Client Libraries**
+- Install OpenAPI Generator:
+  ```bash
+  npm install @openapitools/openapi-generator-cli -g
+  ```
+- Generate a client library:
+  ```bash
+  openapi-generator-cli generate -i openapi.yaml -g <language> -o ./client
+  ```
+- Replace `<language>` with the desired programming language.
+
+4. **Generate Server Stubs**
+- Generate a server stub:
+  ```bash
+  openapi-generator-cli generate -i openapi.yaml -g <framework> -o ./server
+  ```
+- Replace `<framework>` with the desired framework.
+
+5. **Run a Mock Server**
+- Install Prism:
+  ```bash
+  npm install -g @stoplight/prism-cli
+  ```
+- Start the mock server:
+  ```bash
+  prism mock openapi.yaml
+  ```
+
+6. **Validate the OpenAPI File**
+- Use [Swagger Validator](https://validator.swagger.io/):
+  - Upload `openapi.yaml` or paste its content to check for errors.
+
+This guide enables you to view, test, and utilize the API. You can also generate client libraries, server stubs, and run a mock server using the OpenAPI Specification.
 
 ## 💡 **Notes**
 
