@@ -1,0 +1,185 @@
+openapi: 3.1.0
+info:
+  title: ToDo API Documentation
+  description: |
+    API documentation for the ToDo application.
+  version: 1.0.0
+  contact:
+    name: Son Nguyen
+servers:
+  - url: https://todo-app-nextjs-stack.vercel.app/api
+    description: Production server
+paths:
+  /todos:
+    get:
+      summary: Fetch all todos for a user
+      tags: [Todos]
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: ID of the user whose todos are being fetched
+      responses:
+        '200':
+          description: A list of todos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todo'
+        '400':
+          description: Missing or invalid userId
+    post:
+      summary: Add a new todo
+      tags: [Todos]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Todo'
+      responses:
+        '201':
+          description: Todo added successfully
+        '400':
+          description: Invalid input
+  /todos/{todoId}:
+    patch:
+      summary: Update the completion status of a todo
+      tags: [Todos]
+      parameters:
+        - name: todoId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the todo to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                completed:
+                  type: boolean
+      responses:
+        '200':
+          description: Todo updated successfully
+        '400':
+          description: Invalid input
+    delete:
+      summary: Delete a todo
+      tags: [Todos]
+      parameters:
+        - name: todoId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the todo to delete
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+      responses:
+        '200':
+          description: Todo deleted successfully
+        '400':
+          description: Invalid input
+  /auth/login:
+    post:
+      summary: Login to the application
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+  /auth/reset-password:
+    post:
+      summary: Reset the password for a user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        '200':
+          description: Password reset successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Username not found
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Invalid input
+        '500':
+          description: Failed to register user
+components:
+  schemas:
+    Todo:
+      type: object
+      properties:
+        id:
+          type: string
+        task:
+          type: string
+        category:
+          type: string
+        completed:
+          type: boolean
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
