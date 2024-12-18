@@ -621,13 +621,16 @@ export default function LandingPage() {
           }}
         >
           <Typography variant="h5" gutterBottom>
-              Explore the App&apos;s Documentation
+            Explore the App&apos;s Documentation
           </Typography>
           <Typography variant="body2" gutterBottom>
             Visit the app&apos;s source code repository and view the API
             documentation to get to know the app even better!
           </Typography>
-          <Link href="https://github.com/hoangsonww/ToDo-App-NextJS-Fullstack" passHref>
+          <Link
+            href="https://github.com/hoangsonww/ToDo-App-NextJS-Fullstack"
+            passHref
+          >
             <Button
               variant="contained"
               sx={{

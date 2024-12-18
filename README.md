@@ -330,11 +330,13 @@ Here is what it looks like:
 ### Using the `openapi.yaml` File
 
 1. **View the API Documentation**
+
 - Open [Swagger Editor](https://editor.swagger.io/).
 - Upload the `openapi.yaml` file or paste its content.
 - Visualize and interact with the API documentation.
 
 2. **Test the API**
+
 - Import `openapi.yaml` into [Postman](https://www.postman.com/):
   - Open Postman → Import → Select `openapi.yaml`.
   - Test the API endpoints directly from Postman.
@@ -342,6 +344,7 @@ Here is what it looks like:
   - Provide the file URL or upload it to view and test endpoints.
 
 3. **Generate Client Libraries**
+
 - Install OpenAPI Generator:
   ```bash
   npm install @openapitools/openapi-generator-cli -g
@@ -353,6 +356,7 @@ Here is what it looks like:
 - Replace `<language>` with the desired programming language.
 
 4. **Generate Server Stubs**
+
 - Generate a server stub:
   ```bash
   openapi-generator-cli generate -i openapi.yaml -g <framework> -o ./server
@@ -360,6 +364,7 @@ Here is what it looks like:
 - Replace `<framework>` with the desired framework.
 
 5. **Run a Mock Server**
+
 - Install Prism:
   ```bash
   npm install -g @stoplight/prism-cli
@@ -370,6 +375,7 @@ Here is what it looks like:
   ```
 
 6. **Validate the OpenAPI File**
+
 - Use [Swagger Validator](https://validator.swagger.io/):
   - Upload `openapi.yaml` or paste its content to check for errors.
 

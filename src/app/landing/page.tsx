@@ -627,7 +627,10 @@ export default function LandingPage() {
             Visit the app&apos;s source code repository and view the API
             documentation to get to know the app even better!
           </Typography>
-          <Link href="https://github.com/hoangsonww/ToDo-App-NextJS-Fullstack" passHref>
+          <Link
+            href="https://github.com/hoangsonww/ToDo-App-NextJS-Fullstack"
+            passHref
+          >
             <Button
               variant="contained"
               sx={{
