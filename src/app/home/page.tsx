@@ -49,7 +49,7 @@ import { TodoItem, TodoPriority } from "@/types/todo";
 import { getAppTheme } from "../theme";
 import "../page.css";
 
-const categories = [
+  const categories = [
   "General",
   "Work",
   "Personal",
@@ -76,6 +76,13 @@ const parseDate = (value?: string | null) => {
 
 const startOfDay = (date: Date) =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+const chipGroupSx = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 1,
+  alignItems: "center",
+};
 
 export default function Home() {
   const [todos, setTodos] = useState<TodoItem[]>([]);
@@ -479,7 +486,7 @@ export default function Home() {
                       Shape your day with focused tasks, priorities, and a
                       planner view that keeps the important things in sight.
                     </Typography>
-                    <Stack direction="row" spacing={1.5} mt={2} flexWrap="wrap">
+                    <Box sx={{ ...chipGroupSx, mt: 2 }}>
                       <Chip
                         icon={<CheckCircle sx={{ color: "#b2f5ea" }} />}
                         label={`${completionRate}% done`}
@@ -506,7 +513,7 @@ export default function Home() {
                           backgroundColor: "rgba(255,255,255,0.16)",
                         }}
                       />
-                    </Stack>
+                    </Box>
                   </Grid>
                   <Grid item xs={12} md={4}>
                     <Paper
@@ -717,13 +724,13 @@ export default function Home() {
                     <Typography variant="h6" fontWeight={700}>
                       Your tasks
                     </Typography>
-                    <Stack
-                      direction={{ xs: "column", sm: "row" }}
-                      spacing={1}
-                      width="100%"
-                      justifyContent="flex-end"
-                    >
-                      <TextField
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={1}
+                    width="100%"
+                    justifyContent="flex-end"
+                  >
+                    <TextField
                         placeholder="Search title or notes"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -761,13 +768,7 @@ export default function Home() {
 
                   <Divider sx={{ my: 2 }} />
 
-                  <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={1}
-                    flexWrap="wrap"
-                    useFlexGap
-                    mb={2}
-                  >
+                  <Box sx={{ ...chipGroupSx, mb: 2 }}>
                     {["all", "active", "completed"].map((status) => (
                       <Chip
                         key={status}
@@ -817,9 +818,9 @@ export default function Home() {
                       icon={<CalendarMonth />}
                       sx={chipTone}
                     />
-                  </Stack>
+                  </Box>
 
-                  <Stack direction="row" spacing={1} mb={2} flexWrap="wrap">
+                  <Box sx={{ ...chipGroupSx, mb: 2 }}>
                     <Chip
                       label="All categories"
                       variant={categoryFilter === "all" ? "filled" : "outlined"}
@@ -835,7 +836,7 @@ export default function Home() {
                         sx={chipTone}
                       />
                     ))}
-                  </Stack>
+                  </Box>
 
                   {loading ? (
                     <Box

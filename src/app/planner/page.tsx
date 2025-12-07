@@ -46,6 +46,13 @@ export default function PlannerPage() {
   const theme = useMemo(() => getAppTheme(isDarkMode), [isDarkMode]);
   const router = useRouter();
 
+  const chipGroupSx = {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 1,
+    alignItems: "center",
+  };
+
   const sectionPaperSx = {
     backgroundColor: isDarkMode ? "#0f1f1a" : "#ffffff",
     border: "1px solid",
@@ -189,7 +196,7 @@ export default function PlannerPage() {
                   slips. Dates, priorities, and completion live side by side
                   here.
                 </Typography>
-                <Stack direction="row" spacing={1} mt={2} flexWrap="wrap">
+                <Box sx={{ ...chipGroupSx, mt: 2 }}>
                   <Chip
                     icon={<CalendarMonth sx={{ color: "#b2f5ea" }} />}
                     label="7-day horizon"
@@ -214,7 +221,7 @@ export default function PlannerPage() {
                       backgroundColor: "rgba(255,255,255,0.12)",
                     }}
                   />
-                </Stack>
+                </Box>
               </Grid>
               <Grid item xs={12} md={4}>
                 <Stack direction="row" spacing={1} justifyContent="flex-end">
