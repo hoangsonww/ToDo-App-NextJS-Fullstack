@@ -58,6 +58,13 @@ export default function FocusPage() {
   const theme = useMemo(() => getAppTheme(isDarkMode), [isDarkMode]);
   const router = useRouter();
 
+  const chipGroupSx = {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 1,
+    alignItems: "center",
+  };
+
   const sectionPaperSx = {
     backgroundColor: isDarkMode ? "#0f1f1a" : "#ffffff",
     border: "1px solid",
@@ -238,7 +245,7 @@ export default function FocusPage() {
                   Pick one task, start a timer, and protect your focus. Track
                   overdue and today&apos;s commitments without distractions.
                 </Typography>
-                <Stack direction="row" spacing={1} mt={2} flexWrap="wrap">
+                <Box sx={{ ...chipGroupSx, mt: 2 }}>
                   <Chip
                     icon={<AccessTime sx={{ color: "#b2f5ea" }} />}
                     label={`Session: ${focusMinutes} min`}
@@ -255,7 +262,7 @@ export default function FocusPage() {
                       backgroundColor: "rgba(255,255,255,0.12)",
                     }}
                   />
-                </Stack>
+                </Box>
               </Grid>
               <Grid item xs={12} md={4}>
                 <Stack direction="row" spacing={1} justifyContent="flex-end">

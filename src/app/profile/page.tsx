@@ -63,6 +63,13 @@ export default function ProfilePage() {
       }
     : {};
 
+  const chipGroupSx = {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 1,
+    alignItems: "center",
+  };
+
   const toggleDarkMode = () => {
     const next = !isDarkMode;
     setIsDarkMode(next);
@@ -231,7 +238,7 @@ export default function ProfilePage() {
                   Review your Flowlist footprint: tasks, activity, and account
                   data—all in one clean dashboard.
                 </Typography>
-                <Stack direction="row" spacing={1} mt={2} flexWrap="wrap">
+                <Box sx={{ ...chipGroupSx, mt: 2 }}>
                   <Chip
                     icon={<Person sx={{ color: "#b2f5ea" }} />}
                     label={user?.username || "Guest"}
@@ -256,7 +263,7 @@ export default function ProfilePage() {
                       backgroundColor: "rgba(255,255,255,0.12)",
                     }}
                   />
-                </Stack>
+                </Box>
               </Grid>
               <Grid item xs={12} md={4}>
                 <Stack direction="row" spacing={1} justifyContent="flex-end">
