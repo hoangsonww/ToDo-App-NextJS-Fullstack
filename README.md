@@ -1,6 +1,6 @@
-# ToDo-App-Fullstack-NextJS
+# Flowlist - A Full-Stack To-Do Application with Next.js
 
-Welcome to the **ToDo-App-Fullstack-NextJS**, a full-stack, lightweight, and simple to-do application built using **Next.js** with both backend and frontend integrated seamlessly.
+Welcome to **Flowlist**, a full-stack, lightweight, and simple to-do application built using **Next.js** with both backend and frontend integrated seamlessly.
 
 This project shows the power of **Next.js** and serves as a practical demonstration of using Next.js as a complete full-stack framework, incorporating authentication, dark mode, and local storage for data persistence.
 
@@ -37,7 +37,7 @@ This project shows the power of **Next.js** and serves as a practical demonstrat
 - User-specific to-do lists with different categories
 - CRUD operations for to-do items
 - MongoDB database for data storage
-- WebSockets for real-time updates to To-Do items
+- WebSockets & Socket.io for real-time updates to To-Do items
 - Responsive design
 - Add, edit, delete, and complete tasks
 - Persistent storage using SQLite and in-memory storage
@@ -57,72 +57,56 @@ The app features a landing page, authentication (login, register, and forgot pas
 
 ### **Landing Page**
 
-#### **Light Mode**
-
 <p align="center">
-  <img src="images/landing-bright.png" alt="Landing Page" width="100%" style="border-radius: 10px"/>
-</p>
-
-#### **Dark Mode**
-
-<p align="center">
-  <img src="images/landing-dark.png" alt="Landing Page in Dark Mode" width="100%" style="border-radius: 10px"/>
+  <img src="images/landing.png" alt="Landing Page in Dark Mode" width="100%" style="border-radius: 10px"/>
 </p>
 
 ### **Login Page**
 
-#### **Light Mode**
-
 <p align="center">
-  <img src="images/login-bright.png" alt="Login Page" width="100%" style="border-radius: 10px"/>
-</p>
-
-#### **Dark Mode**
-
-<p align="center">
-  <img src="images/login-dark.png" alt="Login Page in Dark Mode" width="100%" style="border-radius: 10px"/>
+  <img src="images/login.png" alt="Login Page in Dark Mode" width="100%" style="border-radius: 10px"/>
 </p>
 
 ### **Register Page**
 
-#### **Light Mode**
-
 <p align="center">
-  <img src="images/register-bright.png" alt="Register Page" width="100%" style="border-radius: 10px"/>
-</p>
-
-#### **Dark Mode**
-
-<p align="center">
-  <img src="images/register-dark.png" alt="Register Page in Dark Mode" width="100%" style="border-radius: 10px"/>
+  <img src="images/register.png" alt="Register Page in Dark Mode" width="100%" style="border-radius: 10px"/>
 </p>
 
 ### **Homepage (To-Do List)**
 
-#### **Light Mode**
-
 <p align="center">
-  <img src="images/home-bright.png" alt="Homepage" width="100%" style="border-radius: 10px"/>
+  <img src="images/home.png" alt="Homepage in Dark Mode" width="100%" style="border-radius: 10px"/>
 </p>
 
-#### **Dark Mode**
+### Planner View
 
 <p align="center">
-  <img src="images/home-dark.png" alt="Homepage in Dark Mode" width="100%" style="border-radius: 10px"/>
+  <img src="images/planner.png" alt="Planner View in Dark Mode" width="100%" style="border-radius: 10px"/>
+</p>
+
+### Insights View
+
+<p align="center">
+  <img src="images/insights.png" alt="Insights View in Dark Mode" width="100%" style="border-radius: 10px"/>
+</p>
+
+### Focus Mode
+
+<p align="center">
+  <img src="images/focus.png" alt="Focus Mode in Dark Mode" width="100%" style="border-radius: 10px"/>
+</p>
+
+### Profile Page
+
+<p align="center">
+  <img src="images/profile.png" alt="Profile Page in Dark Mode" width="100%" style="border-radius: 10px"/>
 </p>
 
 ### **Forgot Password Page**
 
-#### **Light Mode**
-
 <p align="center">
-  <img src="images/forgot-password-bright.png" alt="Forgot Password Page" width="100%" style="border-radius: 10px"/>
-</p>
-
-#### **Dark Mode**
-
-<p align="center">
-  <img src="images/forgot-password-dark.png" alt="Forgot Password Page in Dark Mode" width="100%" style="border-radius: 10px"/>
+  <img src="images/forgot-password.png" alt="Forgot Password Page in Dark Mode" width="100%" style="border-radius: 10px"/>
 </p>
 
 ## 📂 **File Structure**
@@ -212,7 +196,7 @@ todo-app-fullstack-nextjs/
 Here's a table listing all the API endpoints provided by this application:
 
 | HTTP Method | Endpoint                   | Description                       |
-|-------------|----------------------------|-----------------------------------|
+| ----------- | -------------------------- | --------------------------------- |
 | `POST`      | `/api/auth/login`          | Log in with username and password |
 | `POST`      | `/api/auth/register`       | Register a new user               |
 | `GET`       | `/api/todos`               | Fetch all todos for a user        |

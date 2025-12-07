@@ -1,108 +1,88 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
-  Container,
-  Paper,
-  Button,
-  TextField,
-  InputAdornment,
-  Box,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Drawer,
-  CircularProgress,
   ThemeProvider,
-  createTheme,
   CssBaseline,
+  Container,
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  InputAdornment,
+  Stack,
+  LinearProgress,
 } from "@mui/material";
-import {
-  Brightness4,
-  Brightness7,
-  Visibility,
-  VisibilityOff,
-  Menu as MenuIcon,
-  Close as CloseIcon,
-} from "@mui/icons-material";
+import { Visibility, VisibilityOff, Refresh, LockReset } from "@mui/icons-material";
 import Link from "next/link";
-import "../../page.css";
+import NavBar from "@/app/components/NavBar";
+import { getAppTheme } from "@/app/theme";
 
-const darkGreenTheme = createTheme({
-  palette: {
-    primary: {
-      main: "#006400", // Dark green
-    },
-    secondary: {
-      main: "#ffffff", // White
-    },
-    background: {
-      default: "#f5f5f5",
-      paper: "#ffffff",
-    },
-  },
-  typography: {
-    fontFamily: "Poppins, sans-serif",
-  },
-});
-
-export default function ForgotPassword() {
+export default function ForgotPasswordPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [step, setStep] = useState<1 | 2>(1);
   const [error, setError] = useState("");
-  const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const router = useRouter();
-  const pathname = usePathname();
-  const isActive = (path: string) => pathname === path;
   const [user, setUser] = useState<{ id: number; username: string } | null>(
     null,
   );
 
-  useEffect(() => {
-    const storedDarkMode = JSON.parse(
-      localStorage.getItem("darkMode") || "false",
-    );
-    setIsDarkMode(storedDarkMode);
-  }, []);
+  const router = useRouter();
+  const theme = useMemo(() => getAppTheme(isDarkMode), [isDarkMode]);
+
+  const fieldBaseSx = {
+    "& .MuiOutlinedInput-root": {
+      backgroundColor: isDarkMode ? "#1a2f26" : "#ffffff",
+    },
+    "& .MuiInputBase-input": {
+      color: isDarkMode ? "#ffffff" : theme.palette.text.primary,
+      "&::placeholder": {
+        color: isDarkMode ? "#ffffff" : "#4a5c55",
+        opacity: 0.9,
+      },
+    },
+    "& .MuiInputLabel-root": {
+      color: isDarkMode ? "#e8f5ef" : theme.palette.text.secondary,
+    },
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: isDarkMode
+        ? "rgba(255,255,255,0.6)"
+        : "rgba(0,0,0,0.18)",
+    },
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: isDarkMode
+        ? "rgba(255,255,255,0.8)"
+        : "rgba(0,0,0,0.28)",
+    },
+    "& .MuiSvgIcon-root": {
+      color: isDarkMode ? "#ffffff" : theme.palette.text.primary,
+    },
+  };
 
   useEffect(() => {
+    const storedDarkMode = JSON.parse(
+      localStorage.getItem("darkMode") || "true",
+    );
+    setIsDarkMode(storedDarkMode);
+
     const storedUser = JSON.parse(
       localStorage.getItem("currentUser") || "null",
     );
-    if (storedUser) {
-      setUser(storedUser);
-    }
-  }, [router]);
-
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
-  };
+    if (storedUser) setUser(storedUser);
+  }, []);
 
   const toggleDarkMode = () => {
-    const newDarkMode = !isDarkMode;
-    setIsDarkMode(newDarkMode);
-    localStorage.setItem("darkMode", JSON.stringify(newDarkMode));
+    const next = !isDarkMode;
+    setIsDarkMode(next);
+    localStorage.setItem("darkMode", JSON.stringify(next));
   };
 
   const logout = () => {
@@ -111,160 +91,44 @@ export default function ForgotPassword() {
     router.push("/auth/login");
   };
 
-  const drawer = (
-    <Box
-      sx={{
-        width: 250,
-        bgcolor: isDarkMode ? "#333" : "#fff",
-        color: isDarkMode ? "#fff" : "#000",
-        height: "100%",
-        transition: "all 0.3s ease",
-      }}
-    >
-      <IconButton
-        onClick={handleDrawerToggle}
-        sx={{ color: isDarkMode ? "#fff" : "#000", m: 1 }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <List>
-        <ListItem
-          disablePadding
-          sx={{
-            backgroundColor: isActive("/home")
-              ? "rgba(0, 128, 0, 0.3)"
-              : "inherit",
-          }}
-        >
-          <ListItemButton
-            component="a"
-            href="/home"
-            onClick={handleDrawerToggle}
-          >
-            <ListItemText primary="Home" />
-          </ListItemButton>
-        </ListItem>
-        {user ? (
-          <ListItem
-            disablePadding
-            sx={{
-              backgroundColor: isActive("/auth/login")
-                ? "rgba(0, 128, 0, 0.3)"
-                : "inherit",
-            }}
-          >
-            <ListItemButton
-              onClick={() => {
-                logout();
-                handleDrawerToggle();
-              }}
-            >
-              <ListItemText primary="Logout" sx={{ color: "red" }} />
-            </ListItemButton>
-          </ListItem>
-        ) : (
-          <>
-            <ListItem
-              disablePadding
-              sx={{
-                backgroundColor: isActive("/auth/login")
-                  ? "rgba(0, 128, 0, 0.3)"
-                  : "inherit",
-              }}
-            >
-              <ListItemButton
-                component="a"
-                href="/auth/login"
-                onClick={handleDrawerToggle}
-              >
-                <ListItemText primary="Login" />
-              </ListItemButton>
-            </ListItem>
-          </>
-        )}
-        <ListItem
-          disablePadding
-          sx={{
-            backgroundColor: isActive("/auth/register")
-              ? "rgba(0, 128, 0, 0.3)"
-              : "inherit",
-          }}
-        >
-          <ListItemButton
-            component="a"
-            href="/auth/register"
-            onClick={handleDrawerToggle}
-          >
-            <ListItemText primary="Register" />
-          </ListItemButton>
-        </ListItem>
-
-        {/* Divider */}
-        <div
-          style={{
-            borderTop: isDarkMode ? "1px solid #fff" : "1px solid #333",
-            marginTop: 2,
-            marginBottom: 2,
-          }}
-        ></div>
-
-        {/* Dark mode toggle */}
-        <ListItem disablePadding>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            width="100%"
-            px={2}
-            sx={{ mt: 0.5 }}
-          >
-            <Typography sx={{ color: isDarkMode ? "#fff" : "#000" }}>
-              Dark Mode
-            </Typography>
-            <IconButton onClick={toggleDarkMode}>
-              {isDarkMode ? (
-                <Brightness7 sx={{ color: "#fff" }} />
-              ) : (
-                <Brightness4 sx={{ color: "#000" }} />
-              )}
-            </IconButton>
-          </Box>
-        </ListItem>
-      </List>
-    </Box>
-  );
-
   const handleVerifyUsername = async () => {
+    if (!username.trim()) {
+      setError("Enter the username associated with your account");
+      return;
+    }
     setIsLoading(true);
+    setError("");
     try {
       const response = await fetch("/api/auth/verify-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username }), // Send username in the request
+        body: JSON.stringify({ username }),
       });
       const data = await response.json();
-
       if (response.ok) {
-        setStep(2); // Move to reset password step
+        setStep(2);
         setError("");
       } else {
         setError(data.error || "Username verification failed.");
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      setError("Something went wrong. Please try again.");
+    } catch {
+      setError("Unexpected error. Try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleResetPassword = async () => {
+    if (!password || !confirmPassword) {
+      setError("Fill out both password fields");
+      return;
+    }
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-
     setIsLoading(true);
+    setError("");
     try {
       const response = await fetch("/api/auth/reset-password", {
         method: "POST",
@@ -272,7 +136,6 @@ export default function ForgotPassword() {
         body: JSON.stringify({ username, newPassword: password }),
       });
       const data = await response.json();
-
       if (response.ok) {
         alert("Password reset successful!");
         router.push("/auth/login");
@@ -280,345 +143,165 @@ export default function ForgotPassword() {
         setError(data.error || "Password reset failed.");
       }
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError("Unexpected error. Try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <ThemeProvider theme={darkGreenTheme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
+      <Box
+        sx={{
           minHeight: "100vh",
-          backgroundColor: isDarkMode ? "#000000" : "#ffffff",
-          color: isDarkMode ? "#ffffff" : "#000000",
-          transition: "all 0.3s ease",
+          background: isDarkMode
+            ? "radial-gradient(circle at 20% 20%, #0a3d2c 0, #060f0b 35%, #040907 100%)"
+            : "radial-gradient(circle at 12% 18%, #d9f2e5 0, #eef7f2 45%, #f5f8f6 100%)",
+          color: isDarkMode ? "#e6f3ec" : "#0d2621",
+          transition: "background 0.3s ease",
         }}
       >
-        {/* Navbar */}
-        <AppBar position="sticky" sx={{ backgroundColor: "#006400" }}>
-          <Toolbar>
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              <Link href="/" style={{ color: "#fff", textDecoration: "none" }}>
-                The NextJS ToDo App
-              </Link>
-            </Typography>
+        <NavBar
+          user={user}
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+          onLogout={logout}
+        />
 
-            {/* Desktop Navigation */}
-            <Box
-              sx={{
-                display: { xs: "none", md: "flex" },
-                alignItems: "center",
-              }}
-            >
-              <Link href="/home" passHref>
-                <Button
-                  sx={{
-                    color: isActive("/home") ? "#f5f5f5" : "#ffffff",
-                    position: "relative",
-                    "&::after": {
-                      content: '""',
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      height: "2px",
-                      width: isActive("/home") ? "100%" : "0",
-                      backgroundColor: "#ffffff",
-                      borderRadius: "10px",
-                      transition: "width 0.3s",
-                    },
-                    "&:hover::after": {
-                      width: "100%",
-                    },
-                  }}
-                >
-                  Home
-                </Button>
-              </Link>
-
-              {user ? (
-                <Button
-                  onClick={logout}
-                  sx={{
-                    color: "red",
-                    fontWeight: "bold",
-                    position: "relative",
-                    "&:hover": {
-                      color: "#ff4d4d",
-                    },
-                    "&::after": {
-                      content: '""',
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      height: "2px",
-                      width: "0",
-                      backgroundColor: "#fff",
-                      transition: "width 0.3s",
-                    },
-                    "&:hover::after": {
-                      width: "100%",
-                    },
-                  }}
-                >
-                  Logout
-                </Button>
-              ) : (
-                <>
-                  <Link href="/auth/login" passHref>
-                    <Button
-                      sx={{
-                        color: isActive("/auth/login") ? "#f5f5f5" : "#ffffff",
-                        position: "relative",
-                        "&::after": {
-                          content: '""',
-                          position: "absolute",
-                          bottom: 0,
-                          left: 0,
-                          height: "2px",
-                          width: isActive("/auth/login") ? "100%" : "0",
-                          backgroundColor: "#ffffff",
-                          borderRadius: "10px",
-                          transition: "width 0.3s",
-                        },
-                        "&:hover::after": {
-                          width: "100%",
-                        },
-                      }}
-                    >
-                      Login
-                    </Button>
-                  </Link>
-                </>
-              )}
-
-              <Link href="/auth/register" passHref>
-                <Button
-                  sx={{
-                    color: isActive("/auth/register") ? "#f5f5f5" : "#ffffff",
-                    position: "relative",
-                    "&::after": {
-                      content: '""',
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      height: "2px",
-                      width: isActive("/auth/register") ? "100%" : "0",
-                      backgroundColor: "#ffffff",
-                      borderRadius: "10px",
-                      transition: "width 0.3s",
-                    },
-                    "&:hover::after": {
-                      width: "100%",
-                    },
-                  }}
-                >
-                  Register
-                </Button>
-              </Link>
-
-              <IconButton color="inherit" onClick={toggleDarkMode}>
-                {isDarkMode ? <Brightness7 /> : <Brightness4 />}
-              </IconButton>
-            </Box>
-
-            {/* Mobile Navigation */}
-            <IconButton
-              color="inherit"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{
-                display: { xs: "block", md: "none" },
-                textAlign: "center",
-                width: "50px",
-                height: "50px",
-              }}
-            >
-              <MenuIcon sx={{ mt: "5px" }} />
-            </IconButton>
-          </Toolbar>
-
-          {/* Drawer for Mobile */}
-          <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{ keepMounted: true }}
-          >
-            {drawer}
-          </Drawer>
-        </AppBar>
-
-        {/* Forgot Password Form */}
-        <Container
-          sx={{
-            minHeight: "80vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <Container maxWidth="md" sx={{ py: 6 }}>
           <Paper
-            elevation={4}
+            elevation={0}
             sx={{
-              padding: "30px",
-              borderRadius: 2,
-              boxShadow: 3,
-              width: "100%",
-              maxWidth: "400px",
-              backgroundColor: isDarkMode ? "#333" : "#fff",
-              color: isDarkMode ? "#fff" : "#000",
+              p: 3,
+              mb: 3,
+              background: isDarkMode
+                ? "linear-gradient(135deg, #0f3326, #0d5a3f)"
+                : "linear-gradient(135deg, #0f8f5f, #0a6c45)",
+              color: "#ffffff",
             }}
           >
-            <Typography variant="h4" align="center" gutterBottom>
-              {step === 1 ? "Verify Username" : "Reset Password"}
+            <Stack direction="row" spacing={1} alignItems="center">
+              <LockReset />
+              <Typography variant="h5" fontWeight={800}>
+                Recover access
+              </Typography>
+            </Stack>
+            <Typography variant="body1" sx={{ opacity: 0.9, mt: 1 }}>
+              Enter your username to verify ownership, then set a new password.
             </Typography>
+          </Paper>
+
+          <Paper
+            elevation={0}
+            sx={{
+              p: 4,
+              backgroundColor: isDarkMode ? "#0f1f1a" : "#ffffff",
+              border: "1px solid",
+              borderColor: isDarkMode
+                ? "rgba(255,255,255,0.08)"
+                : "rgba(0,0,0,0.05)",
+            }}
+          >
+            <Stack spacing={2} mb={2}>
+              <Typography variant="h5" fontWeight={800}>
+                {step === 1 ? "Verify your username" : "Reset password"}
+              </Typography>
+              <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                {step === 1
+                  ? "We will confirm your account and move to password reset."
+                  : "Choose a new password and confirm it below."}
+              </Typography>
+            </Stack>
+
             {error && (
-              <Typography color="error" align="center" sx={{ mb: 2 }}>
+              <Typography color="error" sx={{ mb: 2 }}>
                 {error}
               </Typography>
             )}
-            {step === 1 ? (
-              <Box>
-                <TextField
-                  label="Username"
-                  variant="outlined"
-                  fullWidth
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  onKeyPress={(e) =>
-                    e.key === "Enter" && handleVerifyUsername()
-                  }
-                  sx={{ marginBottom: 2 }}
-                  InputLabelProps={{
-                    style: { color: isDarkMode ? "#fff" : "#000" },
-                  }}
-                  InputProps={{
-                    style: { color: isDarkMode ? "#fff" : "#000" },
-                  }}
-                />
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={handleVerifyUsername}
-                  disabled={isLoading}
-                  sx={{
-                    backgroundColor: darkGreenTheme.palette.primary.main,
-                    color: "#fff",
-                  }}
-                >
-                  {isLoading ? (
-                    <CircularProgress size={24} sx={{ color: "#fff" }} />
-                  ) : (
-                    "Verify Username"
-                  )}
-                </Button>
-              </Box>
-            ) : (
-              <Box>
-                <TextField
-                  label="New Password"
-                  type={showPassword ? "text" : "password"}
-                  variant="outlined"
-                  fullWidth
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleResetPassword()}
-                  sx={{ marginBottom: 2 }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton onClick={togglePasswordVisibility}>
-                          {showPassword ? (
-                            <VisibilityOff
-                              sx={{ color: isDarkMode ? "#fff" : "#000" }}
-                            />
-                          ) : (
-                            <Visibility
-                              sx={{ color: isDarkMode ? "#fff" : "#000" }}
-                            />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    style: { color: isDarkMode ? "#fff" : "#000" },
-                  }}
-                  InputLabelProps={{
-                    style: { color: isDarkMode ? "#fff" : "#000" },
-                  }}
-                />
-                <TextField
-                  label="Confirm Password"
-                  type={showConfirmPassword ? "text" : "password"}
-                  variant="outlined"
-                  fullWidth
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleResetPassword()}
-                  sx={{ marginBottom: 2 }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton onClick={toggleConfirmPasswordVisibility}>
-                          {showConfirmPassword ? (
-                            <VisibilityOff
-                              sx={{ color: isDarkMode ? "#fff" : "#000" }}
-                            />
-                          ) : (
-                            <Visibility
-                              sx={{ color: isDarkMode ? "#fff" : "#000" }}
-                            />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    style: { color: isDarkMode ? "#fff" : "#000" },
-                  }}
-                  InputLabelProps={{
-                    style: { color: isDarkMode ? "#fff" : "#000" },
-                  }}
-                />
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={handleResetPassword}
-                  disabled={isLoading}
-                  sx={{
-                    backgroundColor: darkGreenTheme.palette.primary.main,
-                    color: "#fff",
-                  }}
-                >
-                  {isLoading ? (
-                    <CircularProgress size={24} sx={{ color: "#fff" }} />
-                  ) : (
-                    "Reset Password"
-                  )}
-                </Button>
-              </Box>
-            )}
+
+            <Stack spacing={2}>
+              <TextField
+                label="Username"
+                fullWidth
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                sx={fieldBaseSx}
+                disabled={step === 2}
+              />
+              {step === 2 && (
+                <>
+                  <TextField
+                    label="New password"
+                    type={showPassword ? "text" : "password"}
+                    fullWidth
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    sx={fieldBaseSx}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword((prev) => !prev)}
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    label="Confirm password"
+                    type={showConfirmPassword ? "text" : "password"}
+                    fullWidth
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    sx={fieldBaseSx}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() =>
+                              setShowConfirmPassword((prev) => !prev)
+                            }
+                          >
+                            {showConfirmPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </>
+              )}
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={step === 1 ? handleVerifyUsername : handleResetPassword}
+                disabled={isLoading}
+                sx={{ color: "#ffffff" }}
+              >
+                {step === 1 ? "Verify username" : "Set new password"}
+              </Button>
+            </Stack>
+
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              mt={2}
+              alignItems="center"
+            >
+              <Link href="/auth/login">Back to login</Link>
+              <Link href="/auth/register">Create account</Link>
+            </Stack>
+
+            {isLoading && <LinearProgress sx={{ mt: 2 }} />}
           </Paper>
         </Container>
-
-        {/* Footer */}
-        <Box
-          sx={{
-            mt: "auto",
-            textAlign: "center",
-            py: 2,
-            backgroundColor: darkGreenTheme.palette.primary.main,
-            color: "#ffffff",
-          }}
-        >
-          <Typography variant="body2">
-            &copy; {new Date().getFullYear()} NextJS ToDo App. All Rights
-            Reserved.
-          </Typography>
-        </Box>
-      </div>
+      </Box>
     </ThemeProvider>
   );
 }
