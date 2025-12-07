@@ -1,283 +1,141 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import isEqual from "lodash/isEqual";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
+  ThemeProvider,
+  CssBaseline,
   Container,
+  Box,
+  Grid,
   Paper,
-  Button,
+  Typography,
   TextField,
+  Button,
+  IconButton,
+  Chip,
+  Stack,
+  LinearProgress,
+  Divider,
+  Tooltip,
   Select,
   MenuItem,
-  Box,
-  Checkbox,
-  FormControl,
   InputLabel,
-  List,
-  ListItem,
-  ListItemButton,
-  Drawer,
-  ListItemText,
-  ThemeProvider,
-  createTheme,
-  CssBaseline,
-  CircularProgress,
+  FormControl,
+  InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
-  Brightness4,
-  Brightness7,
+  Add,
   Delete,
-  AddCircle,
-  Close as CloseIcon,
-  Menu as MenuIcon,
+  Edit,
+  CheckCircle,
+  RadioButtonUnchecked,
+  AccessTime,
+  Flag,
+  Refresh,
+  Search,
+  FilterList,
+  NoteAlt,
+  CalendarMonth,
 } from "@mui/icons-material";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import NavBar from "../components/NavBar";
+import { TodoItem, TodoPriority } from "@/types/todo";
+import { getAppTheme } from "../theme";
 import "../page.css";
 
-interface Todo {
-  id: number;
-  task: string;
-  category: string;
-  completed: boolean;
-  userId: number;
-}
+const categories = [
+  "General",
+  "Work",
+  "Personal",
+  "Shopping",
+  "Health",
+  "Finance",
+  "Learning",
+  "Chores",
+  "Family",
+  "Goals",
+];
 
-const darkGreenTheme = createTheme({
-  palette: {
-    primary: {
-      main: "#006400", // Dark green
-    },
-    secondary: {
-      main: "#ffffff", // White
-    },
-    background: {
-      default: "#f5f5f5",
-      paper: "#ffffff",
-    },
-  },
-  typography: {
-    fontFamily: "Poppins, sans-serif",
-  },
-});
+const priorityColors: Record<TodoPriority, string> = {
+  high: "#d32f2f",
+  medium: "#ed6c02",
+  low: "#2e7d32",
+};
+
+const parseDate = (value?: string | null) => {
+  if (!value) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const startOfDay = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
 export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<TodoItem[]>([]);
   const [task, setTask] = useState("");
   const [category, setCategory] = useState("General");
-  // eslint-disable-next-line
-  const [error, setError] = useState("");
+  const [priority, setPriority] = useState<TodoPriority>("medium");
+  const [dueDate, setDueDate] = useState("");
+  const [notes, setNotes] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "completed"
+  >("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("recent");
   const [user, setUser] = useState<{ id: number; username: string } | null>(
     null,
   );
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isAfternoon, setIsAfternoon] = useState(false);
-  const router = useRouter();
-  const pathname = usePathname();
-  const isActive = (path: string) => pathname === path;
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [greeting, setGreeting] = useState("Welcome back");
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
+  const theme = useMemo(() => getAppTheme(isDarkMode), [isDarkMode]);
+
+  const router = useRouter();
+  const todosRef = useRef<TodoItem[]>([]);
+  const taskInputRef = useRef<HTMLInputElement | null>(null);
+  const itemRefs = useRef<Record<number, React.RefObject<HTMLDivElement>>>({});
+
+  const getNodeRef = (id: number) => {
+    if (!itemRefs.current[id]) {
+      itemRefs.current[id] = React.createRef<HTMLDivElement>();
+    }
+    return itemRefs.current[id];
+  };
 
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    localStorage.setItem("darkMode", JSON.stringify(!isDarkMode));
+    const next = !isDarkMode;
+    setIsDarkMode(next);
+    localStorage.setItem("darkMode", JSON.stringify(next));
   };
 
-  useEffect(() => {
-    const storedUser = JSON.parse(
-      localStorage.getItem("currentUser") || "null",
-    );
-    if (storedUser) {
-      setUser(storedUser);
-    } else {
-      router.push("/auth/login");
-    }
-  }, [router]);
-
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+  const logout = () => {
+    localStorage.removeItem("currentUser");
+    setUser(null);
+    router.push("/auth/login");
   };
-
-  const drawer = (
-    <Box
-      sx={{
-        width: 250,
-        bgcolor: isDarkMode ? "#333" : "#fff",
-        color: isDarkMode ? "#fff" : "#000",
-        height: "100%",
-        transition: "all 0.3s ease",
-      }}
-    >
-      <IconButton
-        onClick={handleDrawerToggle}
-        sx={{ color: isDarkMode ? "#fff" : "#000", m: 1 }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <List>
-        <ListItem
-          disablePadding
-          sx={{
-            backgroundColor: isActive("/home")
-              ? "rgba(0, 128, 0, 0.3)"
-              : "inherit",
-          }}
-        >
-          <ListItemButton
-            component="a"
-            href="/home"
-            onClick={handleDrawerToggle}
-          >
-            <ListItemText primary="Home" />
-          </ListItemButton>
-        </ListItem>
-        {user ? (
-          <ListItem
-            disablePadding
-            sx={{
-              backgroundColor: isActive("/auth/login")
-                ? "rgba(0, 128, 0, 0.3)"
-                : "inherit",
-            }}
-          >
-            <ListItemButton
-              onClick={() => {
-                logout();
-                handleDrawerToggle();
-              }}
-            >
-              <ListItemText primary="Logout" sx={{ color: "red" }} />
-            </ListItemButton>
-          </ListItem>
-        ) : (
-          <>
-            <ListItem
-              disablePadding
-              sx={{
-                backgroundColor: isActive("/auth/login")
-                  ? "rgba(0, 128, 0, 0.3)"
-                  : "inherit",
-              }}
-            >
-              <ListItemButton
-                component="a"
-                href="/auth/login"
-                onClick={handleDrawerToggle}
-              >
-                <ListItemText primary="Login" />
-              </ListItemButton>
-            </ListItem>
-          </>
-        )}
-        <ListItem
-          disablePadding
-          sx={{
-            backgroundColor: isActive("/auth/register")
-              ? "rgba(0, 128, 0, 0.3)"
-              : "inherit",
-          }}
-        >
-          <ListItemButton
-            component="a"
-            href="/auth/register"
-            onClick={handleDrawerToggle}
-          >
-            <ListItemText primary="Register" />
-          </ListItemButton>
-        </ListItem>
-
-        {/* Divider */}
-        <div
-          style={{
-            borderTop: isDarkMode ? "1px solid #fff" : "1px solid #333",
-            marginTop: 2,
-            marginBottom: 2,
-          }}
-        ></div>
-
-        {/* Dark mode toggle */}
-        <ListItem disablePadding>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            width="100%"
-            px={2}
-            sx={{ mt: 0.5 }}
-          >
-            <Typography sx={{ color: isDarkMode ? "#fff" : "#000" }}>
-              Dark Mode
-            </Typography>
-            <IconButton onClick={toggleDarkMode}>
-              {isDarkMode ? (
-                <Brightness7 sx={{ color: "#fff" }} />
-              ) : (
-                <Brightness4 sx={{ color: "#000" }} />
-              )}
-            </IconButton>
-          </Box>
-        </ListItem>
-      </List>
-    </Box>
-  );
-
-  useEffect(() => {
-    const storedUser = JSON.parse(
-      localStorage.getItem("currentUser") || "null",
-    );
-    if (storedUser) {
-      setUser(storedUser);
-    } else {
-      router.push("/auth/login");
-    }
-  }, [router]);
-
-  useEffect(() => {
-    const currentUser = localStorage.getItem("currentUser");
-
-    if (!currentUser || currentUser === "null") {
-      router.push("/home");
-    }
-  }, [router]);
-
-  useEffect(() => {
-    if (user) {
-      fetchTodos(user.id);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    const storedDarkMode = JSON.parse(
-      localStorage.getItem("darkMode") || "true",
-    );
-    setIsDarkMode(storedDarkMode);
-  }, []);
-
-  useEffect(() => {
-    const date = new Date();
-    const hours = date.getHours();
-    setIsAfternoon(hours >= 12 && hours < 18);
-  }, []);
-
-  const todosRef = useRef<Todo[]>([]);
 
   const fetchTodos = async (userId: number, showLoading = false) => {
     if (showLoading) setLoading(true);
 
     try {
       const response = await fetch(`/api/todos?userId=${userId}`);
-      const data = await response.json();
+      const data: TodoItem[] = await response.json();
 
-      // Update state only if data changes
       if (!isEqual(data, todosRef.current)) {
-        todosRef.current = data; // Update ref
-        setTodos(data); // Trigger state update only when needed
+        todosRef.current = data;
+        setTodos(data);
       }
     } catch (err) {
       console.error("Error fetching todos:", err);
@@ -286,466 +144,1159 @@ export default function Home() {
     }
   };
 
-  const addTodo = async () => {
-    if (!task.trim()) return;
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/todos`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user!.id,
-          task,
-          category,
-          completed: false,
-        }),
-      });
-      if (response.ok) {
-        setTask("");
-        fetchTodos(user!.id); // Refresh todos
-      }
-    } catch (err) {
-      console.error("Error adding todo:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const storedDarkMode = JSON.parse(
+      localStorage.getItem("darkMode") || "true",
+    );
+    setIsDarkMode(storedDarkMode);
 
-  const toggleCompletion = async (todoId: number) => {
-    const todo = todos.find((t) => t.id === todoId);
-    if (!todo) return;
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/todos`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user!.id,
-          todoId,
-          completed: !todo.completed,
-        }),
-      });
-      if (response.ok) fetchTodos(user!.id); // Refresh todos
-    } catch (err) {
-      console.error("Error toggling completion:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteTodo = async (todoId: number) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/todos`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user!.id,
-          todoId,
-        }),
-      });
-      if (response.ok) fetchTodos(user!.id); // Refresh todos
-    } catch (err) {
-      console.error("Error deleting todo:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const hour = new Date().getHours();
+    setGreeting(
+      hour >= 18
+        ? "Good Evening"
+        : hour >= 12
+          ? "Good Afternoon"
+          : "Good Morning",
+    );
+  }, []);
 
   useEffect(() => {
     const storedUser = JSON.parse(
       localStorage.getItem("currentUser") || "null",
     );
-    if (storedUser) {
-      setUser(storedUser);
-      fetchTodos(storedUser.id, true); // Initial fetch with loading spinner
-
-      // Polling for updates
-      const interval = setInterval(() => fetchTodos(storedUser.id), 5000);
-      return () => clearInterval(interval);
-    } else {
+    if (!storedUser) {
       router.push("/auth/login");
+      return;
     }
+
+    setUser(storedUser);
+    fetchTodos(storedUser.id, true);
+
+    const interval = setInterval(() => fetchTodos(storedUser.id), 8000);
+    return () => clearInterval(interval);
   }, [router]);
 
-  const logout = () => {
-    localStorage.removeItem("currentUser");
-    setUser(null);
-    router.push("/auth/login");
+  const addTodo = async () => {
+    if (!task.trim() || !user) return;
+    setSaving(true);
+
+    try {
+      const response = await fetch(`/api/todos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          task,
+          category,
+          completed: false,
+          priority,
+          dueDate,
+          notes,
+        }),
+      });
+
+      if (response.ok) {
+        setTask("");
+        setNotes("");
+        setPriority("medium");
+        setDueDate("");
+        setCategory("General");
+        fetchTodos(user.id);
+        taskInputRef.current?.focus();
+      }
+    } catch (err) {
+      console.error("Error adding todo:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggleCompletion = async (todoId: number) => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      const response = await fetch(`/api/todos`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          todoId,
+          completed: !todos.find((t) => t.id === todoId)?.completed,
+        }),
+      });
+      if (response.ok) fetchTodos(user.id);
+    } catch (err) {
+      console.error("Error toggling completion:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteTodo = async (todoId: number) => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      const response = await fetch(`/api/todos`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          todoId,
+        }),
+      });
+      if (response.ok) fetchTodos(user.id);
+    } catch (err) {
+      console.error("Error deleting todo:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const saveEdit = async () => {
+    if (!editingTodo || !user) return;
+    setSaving(true);
+    try {
+      const response = await fetch(`/api/todos`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          todoId: editingTodo.id,
+          task: editingTodo.task,
+          category: editingTodo.category,
+          priority: editingTodo.priority,
+          dueDate: editingTodo.dueDate,
+          notes: editingTodo.notes,
+          completed: editingTodo.completed,
+        }),
+      });
+
+      if (response.ok) {
+        fetchTodos(user.id);
+        setEditOpen(false);
+        setEditingTodo(null);
+      }
+    } catch (err) {
+      console.error("Error updating todo:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const today = useMemo(() => startOfDay(new Date()), []);
+  const todayEnd = useMemo(() => {
+    const end = new Date(today);
+    end.setHours(23, 59, 59, 999);
+    return end;
+  }, [today]);
+
+  const filteredTodos = useMemo(() => {
+    const order: Record<TodoPriority, number> = {
+      high: 0,
+      medium: 1,
+      low: 2,
+    };
+
+    const matchesSearch = (todo: TodoItem) =>
+      todo.task.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (todo.notes || "").toLowerCase().includes(searchTerm.toLowerCase());
+
+    const filtered = todos
+      .filter((todo) => {
+        if (statusFilter === "completed" && !todo.completed) return false;
+        if (statusFilter === "active" && todo.completed) return false;
+        if (categoryFilter === "today") {
+          const date = parseDate(todo.dueDate);
+          if (
+            !date ||
+            date.getTime() < today.getTime() ||
+            date.getTime() > todayEnd.getTime()
+          ) {
+            return false;
+          }
+        } else if (
+          categoryFilter !== "all" &&
+          todo.category !== categoryFilter
+        ) {
+          return false;
+        }
+        if (priorityFilter !== "all" && todo.priority !== priorityFilter)
+          return false;
+        if (searchTerm && !matchesSearch(todo)) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortBy === "priority") {
+          return (
+            (order[a.priority || "medium"] ?? 1) -
+            (order[b.priority || "medium"] ?? 1)
+          );
+        }
+        if (sortBy === "dueDate") {
+          const aDate = parseDate(a.dueDate)?.getTime() ?? Infinity;
+          const bDate = parseDate(b.dueDate)?.getTime() ?? Infinity;
+          return aDate - bDate;
+        }
+        if (sortBy === "category") {
+          return a.category.localeCompare(b.category);
+        }
+        const aCreated = a.createdAt ?? a.id;
+        const bCreated = b.createdAt ?? b.id;
+        return bCreated - aCreated;
+      });
+
+    return filtered;
+  }, [
+    todos,
+    statusFilter,
+    categoryFilter,
+    priorityFilter,
+    searchTerm,
+    sortBy,
+    today,
+    todayEnd,
+  ]);
+
+  const overdueTodos = todos
+    .filter((todo) => {
+      const date = parseDate(todo.dueDate);
+      return date && date < today && !todo.completed;
+    })
+    .sort(
+      (a, b) =>
+        (parseDate(a.dueDate)?.getTime() ?? 0) -
+        (parseDate(b.dueDate)?.getTime() ?? 0),
+    );
+
+  const todayTodos = todos.filter((todo) => {
+    const date = parseDate(todo.dueDate);
+    return (
+      date &&
+      date.getTime() >= today.getTime() &&
+      date.getTime() <= todayEnd.getTime() &&
+      !todo.completed
+    );
+  });
+
+  const upcomingTodos = todos
+    .filter((todo) => {
+      const date = parseDate(todo.dueDate);
+      return date && date > todayEnd && !todo.completed;
+    })
+    .sort(
+      (a, b) =>
+        (parseDate(a.dueDate)?.getTime() ?? 0) -
+        (parseDate(b.dueDate)?.getTime() ?? 0),
+    )
+    .slice(0, 5);
+
+  const completedCount = todos.filter((todo) => todo.completed).length;
+  const total = todos.length;
+  const completionRate = total ? Math.round((completedCount / total) * 100) : 0;
+
+  const uniqueCategories = Array.from(new Set(todos.map((t) => t.category)));
+
+  const resetFilters = () => {
+    setCategoryFilter("all");
+    setPriorityFilter("all");
+    setStatusFilter("all");
+    setSearchTerm("");
+    setSortBy("recent");
+  };
+
+  const chipTone = isDarkMode
+    ? {
+        backgroundColor: "rgba(255,255,255,0.08)",
+        color: "#eaf7f0",
+        borderColor: "rgba(255,255,255,0.2)",
+      }
+    : {};
+
+  const fieldBaseSx = {
+    "& .MuiOutlinedInput-root": {
+      backgroundColor: isDarkMode ? "#1a2f26" : "#ffffff",
+    },
+    "& .MuiInputBase-input": {
+      color: isDarkMode ? "#ffffff" : theme.palette.text.primary,
+      "&::placeholder": {
+        color: isDarkMode ? "#ffffff" : "#4a5c55",
+        opacity: 0.9,
+      },
+    },
+    "& .MuiInputLabel-root": {
+      color: isDarkMode ? "#e8f5ef" : theme.palette.text.secondary,
+    },
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: isDarkMode ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.18)",
+    },
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: isDarkMode ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.28)",
+    },
+    "& .MuiSvgIcon-root": {
+      color: isDarkMode ? "#ffffff" : theme.palette.text.primary,
+    },
   };
 
   return (
-    <ThemeProvider theme={darkGreenTheme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
+      <Box
+        sx={{
           minHeight: "100vh",
-          backgroundColor: isDarkMode ? "#000000" : "#ffffff",
-          color: isDarkMode ? "#ffffff" : "#000000",
-          transition: "all 0.3s ease",
+          background: isDarkMode
+            ? "radial-gradient(circle at 20% 20%, #0a3d2c 0, #060f0b 35%, #040907 100%)"
+            : "radial-gradient(circle at 12% 18%, #d9f2e5 0, #eef7f2 45%, #f5f8f6 100%)",
+          color: isDarkMode ? "#e6f3ec" : "#0d2621",
+          transition: "background 0.3s ease",
         }}
       >
-        {/* Navbar */}
-        <AppBar position="sticky" sx={{ backgroundColor: "#006400" }}>
-          <Toolbar>
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              <Link href="/" style={{ color: "#fff", textDecoration: "none" }}>
-                The NextJS ToDo App
-              </Link>
-            </Typography>
+        <NavBar
+          user={user}
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+          onLogout={logout}
+        />
 
-            {/* Desktop Navigation */}
-            <Box
-              sx={{
-                display: { xs: "none", md: "flex" },
-                alignItems: "center",
-              }}
-            >
-              <Link href="/home" passHref>
-                <Button
-                  sx={{
-                    color: isActive("/home") ? "#f5f5f5" : "#ffffff",
-                    position: "relative",
-                    "&::after": {
-                      content: '""',
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      height: "2px",
-                      width: isActive("/home") ? "100%" : "0",
-                      backgroundColor: "#ffffff",
-                      borderRadius: "10px",
-                      transition: "width 0.3s",
-                    },
-                    "&:hover::after": {
-                      width: "100%",
-                    },
-                  }}
-                >
-                  Home
-                </Button>
-              </Link>
-
-              {user ? (
-                <Button
-                  onClick={logout}
-                  sx={{
-                    color: "red",
-                    fontWeight: "bold",
-                    position: "relative",
-                    "&:hover": {
-                      color: "#ff4d4d",
-                    },
-                    "&::after": {
-                      content: '""',
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      height: "2px",
-                      width: "0",
-                      backgroundColor: "#fff",
-                      transition: "width 0.3s",
-                    },
-                    "&:hover::after": {
-                      width: "100%",
-                    },
-                  }}
-                >
-                  Logout
-                </Button>
-              ) : (
-                <>
-                  <Link href="/auth/login" passHref>
-                    <Button
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  background: isDarkMode
+                    ? "linear-gradient(135deg, #0f3326, #0d5a3f)"
+                    : "linear-gradient(135deg, #0f8f5f, #0a6c45)",
+                  color: "#ffffff",
+                }}
+              >
+                <Grid container spacing={2} alignItems="center">
+                  <Grid item xs={12} md={8}>
+                    <Typography variant="h5" fontWeight={800} gutterBottom>
+                      {greeting}, {user?.username || "organizer"}.
+                    </Typography>
+                    <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                      Shape your day with focused tasks, priorities, and a
+                      planner view that keeps the important things in sight.
+                    </Typography>
+                    <Stack direction="row" spacing={1.5} mt={2} flexWrap="wrap">
+                      <Chip
+                        icon={<CheckCircle sx={{ color: "#b2f5ea" }} />}
+                        label={`${completionRate}% done`}
+                        sx={{
+                          color: "#e9fffa",
+                          backgroundColor: "rgba(255,255,255,0.16)",
+                          borderColor: "rgba(255,255,255,0.3)",
+                        }}
+                        variant="outlined"
+                      />
+                      <Chip
+                        icon={<CalendarMonth sx={{ color: "#b2f5ea" }} />}
+                        label={`${todayTodos.length} due today`}
+                        sx={{
+                          color: "#e9fffa",
+                          backgroundColor: "rgba(255,255,255,0.16)",
+                        }}
+                      />
+                      <Chip
+                        icon={<Flag sx={{ color: "#b2f5ea" }} />}
+                        label={`${overdueTodos.length} overdue`}
+                        sx={{
+                          color: "#e9fffa",
+                          backgroundColor: "rgba(255,255,255,0.16)",
+                        }}
+                      />
+                    </Stack>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Paper
+                      elevation={0}
                       sx={{
-                        color: isActive("/auth/login") ? "#f5f5f5" : "#ffffff",
-                        position: "relative",
-                        "&::after": {
-                          content: '""',
-                          position: "absolute",
-                          bottom: 0,
-                          left: 0,
-                          height: "2px",
-                          width: isActive("/auth/login") ? "100%" : "0",
-                          backgroundColor: "#ffffff",
-                          borderRadius: "10px",
-                          transition: "width 0.3s",
-                        },
-                        "&:hover::after": {
-                          width: "100%",
-                        },
+                        p: 2,
+                        backgroundColor: "rgba(255,255,255,0.15)",
+                        color: "#ffffff",
+                        borderRadius: 2,
                       }}
                     >
-                      Login
-                    </Button>
-                  </Link>
-                </>
-              )}
+                      <Typography variant="body2" gutterBottom>
+                        Progress
+                      </Typography>
+                      <LinearProgress
+                        variant="determinate"
+                        value={completionRate}
+                        sx={{
+                          height: 10,
+                          borderRadius: 5,
+                          backgroundColor: "rgba(255,255,255,0.2)",
+                          "& .MuiLinearProgress-bar": {
+                            backgroundColor: "#b2f5ea",
+                          },
+                        }}
+                      />
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        mt={1}
+                      >
+                        <Typography variant="caption">
+                          {completedCount} completed
+                        </Typography>
+                        <Typography variant="caption">
+                          {total - completedCount} remaining
+                        </Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1} mt={2}>
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          size="small"
+                          onClick={() => taskInputRef.current?.focus()}
+                          startIcon={<Add />}
+                          sx={{ color: "#ffffff" }}
+                        >
+                          New task
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => fetchTodos(user?.id || 0, true)}
+                          startIcon={<Refresh />}
+                          sx={{
+                            color: "#fff",
+                            borderColor: "rgba(255,255,255,0.4)",
+                          }}
+                        >
+                          Refresh
+                        </Button>
+                      </Stack>
+                    </Paper>
+                  </Grid>
+                </Grid>
+              </Paper>
+            </Grid>
 
-              <Link href="/auth/register" passHref>
-                <Button
+            <Grid item xs={12} md={8}>
+              <Stack spacing={2}>
+                <Paper
+                  elevation={0}
                   sx={{
-                    color: isActive("/auth/register") ? "#f5f5f5" : "#ffffff",
-                    position: "relative",
-                    "&::after": {
-                      content: '""',
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      height: "2px",
-                      width: isActive("/auth/register") ? "100%" : "0",
-                      backgroundColor: "#ffffff",
-                      borderRadius: "10px",
-                      transition: "width 0.3s",
-                    },
-                    "&:hover::after": {
-                      width: "100%",
-                    },
+                    p: 3,
+                    backgroundColor: isDarkMode ? "#0f1f1a" : "#ffffff",
                   }}
                 >
-                  Register
-                </Button>
-              </Link>
-
-              <IconButton color="inherit" onClick={toggleDarkMode}>
-                {isDarkMode ? <Brightness7 /> : <Brightness4 />}
-              </IconButton>
-            </Box>
-
-            {/* Mobile Navigation */}
-            <IconButton
-              color="inherit"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{
-                display: { xs: "block", md: "none" },
-                textAlign: "center",
-                width: "50px",
-                height: "50px",
-              }}
-            >
-              <MenuIcon sx={{ mt: "5px" }} />
-            </IconButton>
-          </Toolbar>
-
-          {/* Drawer for Mobile */}
-          <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{ keepMounted: true }}
-          >
-            {drawer}
-          </Drawer>
-        </AppBar>
-
-        {/* Content Area */}
-        <Container sx={{ mt: 4, flexGrow: 1 }}>
-          <Paper
-            elevation={4}
-            sx={{
-              p: 4,
-              borderRadius: 2,
-              boxShadow: 3,
-              transition: "all 0.3s ease",
-              backgroundColor: isDarkMode ? "#333" : "#fff",
-              color: isDarkMode ? "#fff" : "#000",
-            }}
-          >
-            {loading ? (
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100%"
-              >
-                <CircularProgress />
-              </Box>
-            ) : (
-              <>
-                <Typography
-                  variant="h4"
-                  align="center"
-                  gutterBottom
-                  style={{
-                    wordWrap: "break-word",
-                    overflowWrap: "break-word",
-                    maxWidth: "100%",
-                    textAlign: "center",
-                    display: "block",
-                  }}
-                >
-                  {new Date().getHours() >= 18
-                    ? "Good Evening"
-                    : isAfternoon
-                      ? "Good Afternoon"
-                      : "Good Morning"}
-                  , {user?.username}!
-                </Typography>
-                {user && (
-                  <Box textAlign="center" mb={2}>
-                    <Typography
-                      variant="body1"
-                      style={{ marginBottom: "10px" }}
-                    >
-                      Here are your tasks:
+                  <Stack
+                    direction={{ xs: "column", md: "row" }}
+                    spacing={2}
+                    alignItems={{ xs: "flex-start", md: "center" }}
+                    justifyContent="space-between"
+                    mb={2}
+                  >
+                    <Typography variant="h6" fontWeight={700}>
+                      Capture a new task
                     </Typography>
+                    {saving && (
+                      <LinearProgress sx={{ width: { xs: "100%", md: 200 } }} />
+                    )}
+                  </Stack>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={7}>
+                      <TextField
+                        fullWidth
+                        label="Task"
+                        placeholder="Write meeting notes, prep deck, book flights..."
+                        value={task}
+                        inputRef={taskInputRef}
+                        onChange={(e) => setTask(e.target.value)}
+                        sx={fieldBaseSx}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <NoteAlt color="primary" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={5}>
+                      <FormControl fullWidth sx={fieldBaseSx}>
+                        <InputLabel
+                          sx={{ color: theme.palette.text.secondary }}
+                        >
+                          Category
+                        </InputLabel>
+                        <Select
+                          value={category}
+                          label="Category"
+                          onChange={(e) => setCategory(e.target.value)}
+                          sx={fieldBaseSx}
+                        >
+                          {categories.map((cat) => (
+                            <MenuItem key={cat} value={cat}>
+                              {cat}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <FormControl fullWidth sx={fieldBaseSx}>
+                        <InputLabel
+                          sx={{ color: theme.palette.text.secondary }}
+                        >
+                          Priority
+                        </InputLabel>
+                        <Select
+                          value={priority}
+                          label="Priority"
+                          onChange={(e) =>
+                            setPriority(e.target.value as TodoPriority)
+                          }
+                          sx={fieldBaseSx}
+                        >
+                          <MenuItem value="high">High</MenuItem>
+                          <MenuItem value="medium">Medium</MenuItem>
+                          <MenuItem value="low">Low</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        fullWidth
+                        label="Due date"
+                        type="date"
+                        InputLabelProps={{ shrink: true }}
+                        value={dueDate}
+                        onChange={(e) => setDueDate(e.target.value)}
+                        sx={fieldBaseSx}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        fullWidth
+                        label="Notes"
+                        placeholder="Add context or links"
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        sx={fieldBaseSx}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={1.5}
+                    justifyContent="flex-end"
+                    mt={2}
+                  >
+                    <Button onClick={resetFilters} startIcon={<FilterList />}>
+                      Reset filters
+                    </Button>
                     <Button
                       variant="contained"
-                      onClick={logout}
-                      sx={{
-                        mt: 1,
-                        backgroundColor: darkGreenTheme.palette.primary.main,
-                        color: "#fff",
-                        mb: 1,
-                      }}
+                      startIcon={<Add />}
+                      onClick={addTodo}
+                      sx={{ color: "#ffffff" }}
                     >
-                      Logout
+                      Add to list
                     </Button>
-                  </Box>
-                )}
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  mb={3}
+                  </Stack>
+                </Paper>
+
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    backgroundColor: isDarkMode ? "#0f1f1a" : "#ffffff",
+                  }}
                 >
-                  <TextField
-                    label="New Task"
-                    value={task}
-                    onChange={(e) => setTask(e.target.value)}
-                    variant="outlined"
-                    fullWidth
-                    sx={{
-                      mr: 2,
-                      "& .MuiInputBase-input": {
-                        color: isDarkMode ? "#fff" : "#000",
-                      },
-                      "& .MuiInputLabel-root": {
-                        color: isDarkMode ? "#fff" : "#000",
-                      },
-                    }}
-                    InputLabelProps={{
-                      style: { color: isDarkMode ? "#fff" : "#000" },
-                    }}
-                    InputProps={{
-                      style: { color: isDarkMode ? "#fff" : "#000" },
-                    }}
-                  />
-                  <FormControl variant="outlined" sx={{ mr: 2, minWidth: 150 }}>
-                    <InputLabel style={{ color: isDarkMode ? "#fff" : "#000" }}>
-                      Category
-                    </InputLabel>
-                    <Select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      label="Category"
-                      sx={{
-                        color: isDarkMode ? "#fff" : "#000",
-                        backgroundColor: isDarkMode ? "#444" : "#fff",
-                        "& .MuiSvgIcon-root": {
-                          color: isDarkMode ? "#fff" : "#000",
-                        },
-                      }}
+                  <Stack
+                    direction={{ xs: "column", md: "row" }}
+                    spacing={2}
+                    alignItems={{ xs: "flex-start", md: "center" }}
+                    justifyContent="space-between"
+                  >
+                    <Typography variant="h6" fontWeight={700}>
+                      Your tasks
+                    </Typography>
+                    <Stack
+                      direction={{ xs: "column", sm: "row" }}
+                      spacing={1}
+                      width="100%"
+                      justifyContent="flex-end"
                     >
-                      <MenuItem value="General">General</MenuItem>
-                      <MenuItem value="Work">Work</MenuItem>
-                      <MenuItem value="Personal">Personal</MenuItem>
-                      <MenuItem value="Shopping">Shopping</MenuItem>
-                      <MenuItem value="Education">Education</MenuItem>
-                      <MenuItem value="Appointment">Appointment</MenuItem>
-                      <MenuItem value="Fitness">Fitness</MenuItem>
-                      <MenuItem value="Health">Health</MenuItem>
-                      <MenuItem value="Travel">Travel</MenuItem>
-                      <MenuItem value="Finance">Finance</MenuItem>
-                      <MenuItem value="Entertainment">Entertainment</MenuItem>
-                      <MenuItem value="Hobbies">Hobbies</MenuItem>
-                      <MenuItem value="Family">Family</MenuItem>
-                      <MenuItem value="Social">Social</MenuItem>
-                      <MenuItem value="Chores">Chores</MenuItem>
-                      <MenuItem value="Goals">Goals</MenuItem>
-                      <MenuItem value="Urgent">Urgent</MenuItem>
-                      <MenuItem value="Miscellaneous">Miscellaneous</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <IconButton color="primary" onClick={addTodo}>
-                    <AddCircle fontSize="large" />
-                  </IconButton>
-                </Box>
-                {error && (
-                  <Typography color="error" align="center" sx={{ mb: 2 }}>
-                    {error}
-                  </Typography>
-                )}
-                <TransitionGroup>
-                  {todos.map((todo) => (
-                    <CSSTransition
-                      key={todo.id}
-                      timeout={500}
-                      classNames="todo"
+                      <TextField
+                        placeholder="Search title or notes"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        size="small"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Search />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      <FormControl size="small" sx={{ minWidth: 160 }}>
+                        <InputLabel>Sort</InputLabel>
+                        <Select
+                          value={sortBy}
+                          label="Sort"
+                          onChange={(e) => setSortBy(e.target.value)}
+                        >
+                          <MenuItem value="recent">Newest first</MenuItem>
+                          <MenuItem value="dueDate">Due date</MenuItem>
+                          <MenuItem value="priority">Priority</MenuItem>
+                          <MenuItem value="category">Category</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <Button
+                        variant="outlined"
+                        startIcon={<Refresh />}
+                        onClick={() => fetchTodos(user?.id || 0, true)}
+                      >
+                        Sync
+                      </Button>
+                    </Stack>
+                  </Stack>
+
+                  <Divider sx={{ my: 2 }} />
+
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={1}
+                    flexWrap="wrap"
+                    useFlexGap
+                    mb={2}
+                  >
+                    {["all", "active", "completed"].map((status) => (
+                      <Chip
+                        key={status}
+                        label={
+                          status === "all"
+                            ? "All"
+                            : status === "active"
+                              ? "In progress"
+                              : "Completed"
+                        }
+                        color={statusFilter === status ? "primary" : "default"}
+                        onClick={() =>
+                          setStatusFilter(status as typeof statusFilter)
+                        }
+                        icon={
+                          status === "completed" ? (
+                            <CheckCircle />
+                          ) : status === "active" ? (
+                            <Flag />
+                          ) : (
+                            <FilterList />
+                          )
+                        }
+                        sx={chipTone}
+                      />
+                    ))}
+
+                    <Chip
+                      label="High priority"
+                      color={priorityFilter === "high" ? "primary" : "default"}
+                      onClick={() =>
+                        setPriorityFilter(
+                          priorityFilter === "high" ? "all" : "high",
+                        )
+                      }
+                      icon={<Flag />}
+                      sx={chipTone}
+                    />
+                    <Chip
+                      label="Due today"
+                      color={categoryFilter === "today" ? "primary" : "default"}
+                      onClick={() =>
+                        setCategoryFilter(
+                          categoryFilter === "today" ? "all" : "today",
+                        )
+                      }
+                      icon={<CalendarMonth />}
+                      sx={chipTone}
+                    />
+                  </Stack>
+
+                  <Stack direction="row" spacing={1} mb={2} flexWrap="wrap">
+                    <Chip
+                      label="All categories"
+                      variant={categoryFilter === "all" ? "filled" : "outlined"}
+                      onClick={() => setCategoryFilter("all")}
+                      sx={chipTone}
+                    />
+                    {uniqueCategories.map((cat) => (
+                      <Chip
+                        key={cat}
+                        label={cat}
+                        variant={categoryFilter === cat ? "filled" : "outlined"}
+                        onClick={() => setCategoryFilter(cat)}
+                        sx={chipTone}
+                      />
+                    ))}
+                  </Stack>
+
+                  {loading ? (
+                    <Box
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                      minHeight={220}
                     >
+                      <LinearProgress sx={{ width: "100%" }} />
+                    </Box>
+                  ) : filteredTodos.length === 0 ? (
+                    <Box
+                      textAlign="center"
+                      py={4}
+                      sx={{ opacity: 0.7 }}
+                      display="flex"
+                      flexDirection="column"
+                      alignItems="center"
+                      gap={1}
+                    >
+                      <Typography variant="h6" fontWeight={700}>
+                        Nothing to show here
+                      </Typography>
+                      <Typography variant="body2">
+                        Adjust filters or create a new task to get moving.
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        startIcon={<Add />}
+                        onClick={() => taskInputRef.current?.focus()}
+                        sx={{ mt: 1 }}
+                      >
+                        Add your first task
+                      </Button>
+                    </Box>
+                  ) : (
+                    <TransitionGroup>
+                      {filteredTodos.map((todo) => {
+                        const nodeRef = getNodeRef(todo.id);
+                        return (
+                          <CSSTransition
+                            key={todo.id}
+                            timeout={400}
+                            classNames="todo"
+                            nodeRef={nodeRef}
+                          >
+                            <Paper
+                              ref={nodeRef}
+                              elevation={0}
+                              sx={{
+                                p: 2,
+                                mb: 1.5,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                gap: 2,
+                                backgroundColor: todo.completed
+                                  ? isDarkMode
+                                    ? "#0f1f1a"
+                                    : "#f0f5f2"
+                                  : isDarkMode
+                                    ? "#14261f"
+                                    : "#f8fbf9",
+                                border: "1px solid",
+                                borderColor: isDarkMode
+                                  ? "rgba(255,255,255,0.06)"
+                                  : "rgba(0,0,0,0.04)",
+                                opacity: todo.completed ? 0.7 : 1,
+                              }}
+                            >
+                              <Box display="flex" alignItems="center" gap={2}>
+                                <Tooltip
+                                  title={
+                                    todo.completed
+                                      ? "Mark as active"
+                                      : "Mark as done"
+                                  }
+                                >
+                                  <IconButton
+                                    color={todo.completed ? "primary" : "default"}
+                                    onClick={() => toggleCompletion(todo.id)}
+                                  >
+                                    {todo.completed ? (
+                                      <CheckCircle />
+                                    ) : (
+                                      <RadioButtonUnchecked />
+                                    )}
+                                  </IconButton>
+                                </Tooltip>
+                                <Box>
+                                  <Typography
+                                    variant="subtitle1"
+                                    fontWeight={700}
+                                    sx={{
+                                      textDecoration: todo.completed
+                                        ? "line-through"
+                                        : "none",
+                                    }}
+                                  >
+                                    {todo.task}
+                                  </Typography>
+                                  <Stack
+                                    direction="row"
+                                    spacing={1}
+                                    flexWrap="wrap"
+                                    useFlexGap
+                                    mt={0.5}
+                                  >
+                                    <Chip
+                                      size="small"
+                                      label={todo.category}
+                                      variant="outlined"
+                                    />
+                                    <Chip
+                                      size="small"
+                                      label={(todo.priority || "medium").toUpperCase()}
+                                      sx={{
+                                        color:
+                                          priorityColors[todo.priority || "medium"],
+                                        borderColor:
+                                          priorityColors[todo.priority || "medium"],
+                                      }}
+                                      icon={<Flag />}
+                                      variant="outlined"
+                                    />
+                                    {todo.dueDate && (
+                                      <Chip
+                                        size="small"
+                                        label={todo.dueDate}
+                                        icon={<AccessTime />}
+                                        variant="outlined"
+                                      />
+                                    )}
+                                  </Stack>
+                                  {todo.notes && (
+                                    <Typography variant="body2" sx={{ mt: 0.5 }}>
+                                      {todo.notes}
+                                    </Typography>
+                                  )}
+                                </Box>
+                              </Box>
+                              <Stack direction="row" spacing={1}>
+                                <Tooltip title="Edit">
+                                  <IconButton
+                                    onClick={() => {
+                                      setEditingTodo(todo);
+                                      setEditOpen(true);
+                                    }}
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Delete">
+                                  <IconButton
+                                    color="error"
+                                    onClick={() => deleteTodo(todo.id)}
+                                  >
+                                    <Delete />
+                                  </IconButton>
+                                </Tooltip>
+                              </Stack>
+                            </Paper>
+                          </CSSTransition>
+                        );
+                      })}
+                    </TransitionGroup>
+                  )}
+                </Paper>
+              </Stack>
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <Stack spacing={2}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    backgroundColor: isDarkMode ? "#0f1f1a" : "#ffffff",
+                  }}
+                >
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={1}
+                  >
+                    <Typography variant="h6" fontWeight={700}>
+                      Today&apos;s focus
+                    </Typography>
+                    <Chip
+                      size="small"
+                      label={`${todayTodos.length} tasks`}
+                      color="primary"
+                    />
+                  </Stack>
+                  {todayTodos.length === 0 ? (
+                    <Typography variant="body2" sx={{ opacity: 0.7 }}>
+                      Nothing scheduled today. Add due dates to stay on track.
+                    </Typography>
+                  ) : (
+                    <Stack spacing={1}>
+                      {todayTodos.map((todo) => (
+                        <Paper
+                          key={todo.id}
+                          elevation={0}
+                          sx={{
+                            p: 1.5,
+                            backgroundColor: isDarkMode ? "#14261f" : "#f4faf6",
+                          }}
+                        >
+                          <Typography variant="subtitle2" fontWeight={700}>
+                            {todo.task}
+                          </Typography>
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                          >
+                            <Chip
+                              size="small"
+                              label={todo.category}
+                              variant="outlined"
+                            />
+                            <Chip
+                              size="small"
+                              label={(todo.priority || "medium").toUpperCase()}
+                              sx={{
+                                color:
+                                  priorityColors[todo.priority || "medium"],
+                                borderColor:
+                                  priorityColors[todo.priority || "medium"],
+                              }}
+                              variant="outlined"
+                            />
+                          </Stack>
+                        </Paper>
+                      ))}
+                    </Stack>
+                  )}
+                </Paper>
+
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    backgroundColor: isDarkMode ? "#0f1f1a" : "#ffffff",
+                  }}
+                >
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={1}
+                  >
+                    <Typography variant="h6" fontWeight={700}>
+                      Upcoming
+                    </Typography>
+                    <Chip
+                      size="small"
+                      label={`${upcomingTodos.length} queued`}
+                      variant="outlined"
+                    />
+                  </Stack>
+                  <Stack spacing={1}>
+                    {upcomingTodos.length === 0 && (
+                      <Typography variant="body2" sx={{ opacity: 0.7 }}>
+                        Assign due dates to see your pipeline.
+                      </Typography>
+                    )}
+                    {upcomingTodos.map((todo) => (
                       <Paper
-                        elevation={2}
+                        key={todo.id}
+                        elevation={0}
                         sx={{
-                          p: 2,
-                          mb: 1,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          boxShadow: 3,
-                          backgroundColor: isDarkMode ? "#444" : "#f9f9f9",
-                          color: isDarkMode ? "#fff" : "#000",
+                          p: 1.5,
+                          backgroundColor: isDarkMode ? "#14261f" : "#f4faf6",
                         }}
                       >
-                        <Box display="flex" alignItems="center">
-                          <Checkbox
-                            checked={todo.completed}
-                            onChange={() => toggleCompletion(todo.id)}
-                          />
-                          <Typography
-                            variant="body1"
-                            style={{
-                              textDecoration: todo.completed
-                                ? "line-through"
-                                : "none",
-                            }}
-                          >
-                            [{todo.category}] {todo.task}
-                          </Typography>
-                        </Box>
-                        <IconButton
-                          color="error"
-                          onClick={() => deleteTodo(todo.id)}
+                        <Typography variant="subtitle2" fontWeight={700}>
+                          {todo.task}
+                        </Typography>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          alignItems="center"
+                          justifyContent="space-between"
                         >
-                          <Delete />
-                        </IconButton>
+                          <Chip
+                            size="small"
+                            label={todo.dueDate || "Anytime"}
+                            icon={<AccessTime />}
+                            variant="outlined"
+                          />
+                          <Chip
+                            size="small"
+                            label={(todo.priority || "medium").toUpperCase()}
+                            sx={{
+                              color: priorityColors[todo.priority || "medium"],
+                              borderColor:
+                                priorityColors[todo.priority || "medium"],
+                            }}
+                            variant="outlined"
+                          />
+                        </Stack>
                       </Paper>
-                    </CSSTransition>
-                  ))}
-                </TransitionGroup>
-              </>
-            )}
-          </Paper>
+                    ))}
+                  </Stack>
+                </Paper>
+
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    backgroundColor: isDarkMode ? "#0f1f1a" : "#ffffff",
+                  }}
+                >
+                  <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+                    <Flag color="error" />
+                    <Typography variant="h6" fontWeight={700}>
+                      Overdue
+                    </Typography>
+                  </Stack>
+                  {overdueTodos.length === 0 ? (
+                    <Typography variant="body2" sx={{ opacity: 0.7 }}>
+                      You&apos;re caught up. Nicely done!
+                    </Typography>
+                  ) : (
+                    <Stack spacing={1}>
+                      {overdueTodos.map((todo) => (
+                        <Paper
+                          key={todo.id}
+                          elevation={0}
+                          sx={{
+                            p: 1.5,
+                            border: "1px solid rgba(211,47,47,0.35)",
+                            backgroundColor: isDarkMode ? "#261416" : "#fff5f5",
+                          }}
+                        >
+                          <Typography variant="subtitle2" fontWeight={700}>
+                            {todo.task}
+                          </Typography>
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                          >
+                            <Chip
+                              size="small"
+                              label={todo.dueDate}
+                              icon={<AccessTime />}
+                              color="error"
+                              variant="outlined"
+                            />
+                            <Chip
+                              size="small"
+                              label={todo.category}
+                              variant="outlined"
+                            />
+                          </Stack>
+                        </Paper>
+                      ))}
+                    </Stack>
+                  )}
+                </Paper>
+              </Stack>
+            </Grid>
+          </Grid>
         </Container>
 
-        {/* Footer */}
-        <Box
-          sx={{
-            mt: "auto",
-            textAlign: "center",
-            py: 2,
-            backgroundColor: darkGreenTheme.palette.primary.main,
-            color: "#ffffff",
-          }}
-        >
-          <Typography variant="body2">
-            &copy; {new Date().getFullYear()} NextJS ToDo App. All Rights
-            Reserved.
-          </Typography>
-        </Box>
-      </div>
+        <Dialog open={editOpen} onClose={() => setEditOpen(false)} fullWidth>
+          <DialogTitle>Edit task</DialogTitle>
+          <DialogContent dividers>
+            <Stack spacing={2} mt={1}>
+              <TextField
+                label="Task"
+                fullWidth
+                value={editingTodo?.task || ""}
+                onChange={(e) =>
+                  setEditingTodo(
+                    editingTodo
+                      ? { ...editingTodo, task: e.target.value }
+                      : null,
+                  )
+                }
+              />
+              <FormControl fullWidth>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  label="Category"
+                  value={editingTodo?.category || ""}
+                  onChange={(e) =>
+                    setEditingTodo(
+                      editingTodo
+                        ? { ...editingTodo, category: e.target.value }
+                        : null,
+                    )
+                  }
+                >
+                  {categories.map((cat) => (
+                    <MenuItem key={cat} value={cat}>
+                      {cat}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel>Priority</InputLabel>
+                <Select
+                  label="Priority"
+                  value={editingTodo?.priority || "medium"}
+                  onChange={(e) =>
+                    setEditingTodo(
+                      editingTodo
+                        ? {
+                            ...editingTodo,
+                            priority: e.target.value as TodoPriority,
+                          }
+                        : null,
+                    )
+                  }
+                >
+                  <MenuItem value="high">High</MenuItem>
+                  <MenuItem value="medium">Medium</MenuItem>
+                  <MenuItem value="low">Low</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                label="Due date"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={editingTodo?.dueDate || ""}
+                onChange={(e) =>
+                  setEditingTodo(
+                    editingTodo
+                      ? { ...editingTodo, dueDate: e.target.value }
+                      : null,
+                  )
+                }
+              />
+              <TextField
+                label="Notes"
+                fullWidth
+                value={editingTodo?.notes || ""}
+                onChange={(e) =>
+                  setEditingTodo(
+                    editingTodo
+                      ? { ...editingTodo, notes: e.target.value }
+                      : null,
+                  )
+                }
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setEditOpen(false)}>Cancel</Button>
+            <Button onClick={saveEdit} variant="contained">
+              Save changes
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
     </ThemeProvider>
   );
 }
