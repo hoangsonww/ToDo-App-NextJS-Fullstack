@@ -49,7 +49,7 @@ import { TodoItem, TodoPriority } from "@/types/todo";
 import { getAppTheme } from "../theme";
 import "../page.css";
 
-  const categories = [
+const categories = [
   "General",
   "Work",
   "Personal",
@@ -724,13 +724,13 @@ export default function Home() {
                     <Typography variant="h6" fontWeight={700}>
                       Your tasks
                     </Typography>
-                  <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={1}
-                    width="100%"
-                    justifyContent="flex-end"
-                  >
-                    <TextField
+                    <Stack
+                      direction={{ xs: "column", sm: "row" }}
+                      spacing={1}
+                      width="100%"
+                      justifyContent="flex-end"
+                    >
+                      <TextField
                         placeholder="Search title or notes"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -916,7 +916,9 @@ export default function Home() {
                                   }
                                 >
                                   <IconButton
-                                    color={todo.completed ? "primary" : "default"}
+                                    color={
+                                      todo.completed ? "primary" : "default"
+                                    }
                                     onClick={() => toggleCompletion(todo.id)}
                                   >
                                     {todo.completed ? (
@@ -952,12 +954,18 @@ export default function Home() {
                                     />
                                     <Chip
                                       size="small"
-                                      label={(todo.priority || "medium").toUpperCase()}
+                                      label={(
+                                        todo.priority || "medium"
+                                      ).toUpperCase()}
                                       sx={{
                                         color:
-                                          priorityColors[todo.priority || "medium"],
+                                          priorityColors[
+                                            todo.priority || "medium"
+                                          ],
                                         borderColor:
-                                          priorityColors[todo.priority || "medium"],
+                                          priorityColors[
+                                            todo.priority || "medium"
+                                          ],
                                       }}
                                       icon={<Flag />}
                                       variant="outlined"
@@ -972,7 +980,10 @@ export default function Home() {
                                     )}
                                   </Stack>
                                   {todo.notes && (
-                                    <Typography variant="body2" sx={{ mt: 0.5 }}>
+                                    <Typography
+                                      variant="body2"
+                                      sx={{ mt: 0.5 }}
+                                    >
                                       {todo.notes}
                                     </Typography>
                                   )}

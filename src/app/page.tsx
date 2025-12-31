@@ -198,7 +198,7 @@ export default function LandingPage() {
                   {user ? "Plan my week" : "Create an account"}
                 </Button>
               </Stack>
-              <Stack direction="row" spacing={1.5} mt={3} flexWrap="wrap">
+              <Stack direction="row" mt={3} flexWrap="wrap" sx={{ gap: 1.5 }}>
                 <Chip
                   icon={<CalendarMonth color="primary" />}
                   label="Due dates & priorities"

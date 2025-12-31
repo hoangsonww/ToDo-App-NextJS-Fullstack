@@ -16,7 +16,12 @@ import {
   Stack,
   LinearProgress,
 } from "@mui/material";
-import { Visibility, VisibilityOff, Refresh, LockReset } from "@mui/icons-material";
+import {
+  Visibility,
+  VisibilityOff,
+  Refresh,
+  LockReset,
+} from "@mui/icons-material";
 import Link from "next/link";
 import NavBar from "@/app/components/NavBar";
 import { getAppTheme } from "@/app/theme";
@@ -53,14 +58,10 @@ export default function ForgotPasswordPage() {
       color: isDarkMode ? "#e8f5ef" : theme.palette.text.secondary,
     },
     "& .MuiOutlinedInput-notchedOutline": {
-      borderColor: isDarkMode
-        ? "rgba(255,255,255,0.6)"
-        : "rgba(0,0,0,0.18)",
+      borderColor: isDarkMode ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.18)",
     },
     "&:hover .MuiOutlinedInput-notchedOutline": {
-      borderColor: isDarkMode
-        ? "rgba(255,255,255,0.8)"
-        : "rgba(0,0,0,0.28)",
+      borderColor: isDarkMode ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.28)",
     },
     "& .MuiSvgIcon-root": {
       color: isDarkMode ? "#ffffff" : theme.palette.text.primary,
@@ -280,7 +281,9 @@ export default function ForgotPasswordPage() {
               <Button
                 variant="contained"
                 fullWidth
-                onClick={step === 1 ? handleVerifyUsername : handleResetPassword}
+                onClick={
+                  step === 1 ? handleVerifyUsername : handleResetPassword
+                }
                 disabled={isLoading}
                 sx={{ color: "#ffffff" }}
               >
