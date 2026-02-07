@@ -16,7 +16,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "The Next.js ToDo App",
+  title: "Flowlist - Track Your Tasks Efficiently",
   description: "A simple todo app built with Next.js",
 };
 
@@ -37,19 +37,19 @@ export default function RootLayout({
           content="A simple todo app built with Next.js"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>The Next.js ToDo App - Stay Organized with ToDo Lists</title>
+        <title>Flowlist - Track Your Tasks Efficiently</title>
         <meta name="author" content="Son Nguyen" />
         <meta name="robots" content="index, follow" />
         <meta charSet="utf-8" />
         <meta name="keywords" content="nextjs, todo, app" />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@nextjstodoapp" />
-        <meta name="twitter:title" content="The Next.js ToDo App" />
+        <meta name="twitter:title" content="Flowlist - Track Your Tasks Efficiently" />
         <meta
           name="twitter:description"
           content="A simple todo app built with Next.js"
         />
-        <meta property="og:title" content="The Next.js ToDo App" />
+        <meta property="og:title" content="Flowlist - Track Your Tasks Efficiently" />
         <meta
           property="og:description"
           content="A simple todo app built with Next.js"
@@ -60,7 +60,7 @@ export default function RootLayout({
           content="https://todo-app-nextjs-stack.vercel.app/"
         />
         <meta property="og:image" content="/android-chrome-512x512.png" />
-        <meta property="og:site_name" content="The Next.js ToDo App" />
+        <meta property="og:site_name" content="Flowlist - Track Your Tasks Efficiently" />
         <meta property="og:locale" content="en_US" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
