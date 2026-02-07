@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import localFont from "next/font/local";
+import AppFooter from "./components/AppFooter";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -65,6 +66,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Analytics />
         {children}
+        <AppFooter />
       </body>
     </html>
   );

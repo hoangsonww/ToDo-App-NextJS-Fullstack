@@ -240,7 +240,12 @@ export default function NavBar({
           ))}
         </Box>
 
-        <Box display="flex" alignItems="center" gap={1}>
+        <Box
+          display="flex"
+          alignItems="center"
+          gap={0.75}
+          sx={{ ml: { xs: 0.35, md: 0.9 } }}
+        >
           <IconButton color="inherit" onClick={toggleDarkMode}>
             {isDarkMode ? <Brightness7 /> : <Brightness4 />}
           </IconButton>
